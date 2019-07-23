@@ -1,0 +1,714 @@
+9.209.0.98 | FAILED | rc=31 >>
+Hostname: SL-Ashburn-Internet.innovate.ibm.com
+Tonic v1.19
+Configuration: ITCS 104 v12.5 ($Revision: 1.389 $ $Date: 2016/03/16 13:15:07 $)
+Run date: 2019-05-17 01:37 CDT
+Passed: 411 of 442 (92%)
+
+Warnings:
+* You must enforce the following password length and quality requirements
+  - attribute check skipped - pam_cracklib.so line not found in /etc/pam.d/system-auth.
+* Users should change their passwords every 90 days
+  - /etc/login.defs (line 25) should have PASS_MAX_DAYS <= 90
+* Users should not change their passwords more than every 1 days
+  - /etc/login.defs (line 26) should have PASS_MIN_DAYS >= 1
+* You must set the following variables in /etc/login.defs
+  - FAILLOG_ENAB
+* /etc/pam.d/login does not include any 'auth include' password control inheritance statement.
+  - /etc/pam.d/login line 4 : auth       include      postlogin
+* /etc/pam.d/sshd does not include any 'auth include' password control inheritance statement.
+  - /etc/pam.d/sshd line 5 : auth       include      postlogin
+* /etc/pam.d/su does not include any 'auth include' password control inheritance statement.
+  - /etc/pam.d/su line 8 : auth		include		postlogin
+* /etc/pam.d/sshd does not include any 'account include' password control inheritance statement.
+  - /etc/pam.d/sshd line 9 : account    include      password-auth
+* /etc/pam.d/passwd does not include any 'password include' password control inheritance statement.
+* /etc/pam.d/sshd does not include any 'password include' password control inheritance statement.
+  - /etc/pam.d/sshd line 10 : password   include      password-auth
+* /etc/pam.d/system-auth Password statement does not conform to remember=8 requirement. Template is ... password (required|sufficient) pam_unix.so remember=8 use_authtok (md5|sha512) shadow
+  - /etc/pam.d/system-auth line 15 : password    sufficient    pam_unix.so sha512 shadow nullok try_first_pass use_authtok
+* /etc/pam.d/password-auth Password statement does not conform to remember=8 requirement. Template is ... password (required|sufficient) pam_unix.so remember=8 use_authtok (md5|sha512) shadow
+  - /etc/pam.d/password-auth line 15 : password    sufficient    pam_unix.so sha512 shadow nullok try_first_pass use_authtok
+* Users must not change their password more than once every 1 days
+  - run "passwd -n 1 username" for users:
+  - root
+  - vp
+  - ansible
+* Prevent reuse of previous 9 passwords
+  - Add attribute "remember=8" at /etc/pam.d/system-auth line 15
+  - Add attribute "remember=8" at /etc/pam.d/password-auth line 15
+  - Add attribute "remember=8" at /etc/pam.d/password-auth-ac line 15
+  - Add attribute "remember=8" at /etc/pam.d/system-auth-ac line 15
+* Invoking /etc/profile as example non-system userid ed (uid 1005) sets umask=002,
+    should set umask=077 for all users with uid>199
+* Required file /etc/profile.d/IBMsinit.sh is missing
+* /etc/profile.d/IBMsinit.sh must have permission 0755
+  - Currently does not exist
+* /etc/cron.d/0hourly - Non-absolute path to executable detected
+  - run-parts found at line 5 : 01 * * * * root run-parts /etc/cron.hourly
+* Insecure consoles are defined in /etc/securetty
+  - ttysclp0
+  - sclp_line0
+  - 3270/tty1
+  - xvc0
+* Prevent remote root logins
+  - /etc/pam.d/login should contain:
+    auth required pam_securetty.so
+* 5 PAM modules that are used are not installed.
+  - pam_ck_connector.so is used by login.
+  - pam_fprintd.so is used by fingerprint-auth and fingerprint-auth-ac.
+  - pam_gnome_keyring.so is used by passwd.
+  - pam_pkcs11.so is used by smartcard-auth and smartcard-auth-ac.
+  - pam_reauthorize.so is used by sshd and sshd.30714.2019-02-14@23:06:21~.
+* /var/log/secure is only being kept for 28 days (should be 90)
+  - Increase rotation to 13 or more in /etc/logrotate.conf line 6
+* /var/log/messages is only being kept for 28 days (should be 90)
+  - Increase rotation to 13 or more in /etc/logrotate.conf line 6
+* /var/log/wtmp is only being kept for 29.6 days (should be 90)
+  - Increase rotation to 4 or more in /etc/logrotate.conf line 25
+* Kernel parameter net.ipv4.conf.all.accept_redirects is invalid(1).
+  - Contents of /proc/sys/net/ipv4/conf/all/accept_redirects should be 0
+* Missing entry for 'PermitRootLogin' in /etc/ssh/sshd_config
+  - It should be "no"
+* Missing entry for 'MaxAuthTries' in /etc/ssh/sshd_config
+  - It should be "5 or less"
+* Missing entry for 'LogLevel' in /etc/ssh/sshd_config
+  - It should be "INFO or higher"
+*  Sudoers file contains relative command path
+  - 'ACCESSHUBID' in /etc/sudoers line 129 : %accesshubid	ALL=(ALL)	NOPASSWD: ACCESSHUBID
+* Some services accept empty passwords
+  - Remove nullok parameters from the following files to fix it:
+  - /etc/pam.d/password-auth line 5 (9)
+  - /etc/pam.d/password-auth-ac line 5 (1)
+  - /etc/pam.d/system-auth line 5 (13)
+  - /etc/pam.d/system-auth-ac line 5 (1)
+* None of the suggested NTP config files could be read
+  - /etc/ntp.conf
+  - /etc/xntp.conf
+  - /etc/chrony.confnon-zero return code
+9.209.5.48 | FAILED | rc=30 >>
+Hostname: SL-Dallas-Internet.innovate.ibm.com
+Tonic v1.19
+Configuration: ITCS 104 v12.5 ($Revision: 1.389 $ $Date: 2016/03/16 13:15:07 $)
+Run date: 2019-05-17 01:34 CDT
+Passed: 412 of 442 (93%)
+
+Warnings:
+* You must enforce the following password length and quality requirements
+  - attribute check skipped - pam_cracklib.so line not found in /etc/pam.d/system-auth.
+* Users should change their passwords every 90 days
+  - /etc/login.defs (line 25) should have PASS_MAX_DAYS <= 90
+* Users should not change their passwords more than every 1 days
+  - /etc/login.defs (line 26) should have PASS_MIN_DAYS >= 1
+* You must set the following variables in /etc/login.defs
+  - FAILLOG_ENAB
+* /etc/pam.d/login does not include any 'auth include' password control inheritance statement.
+  - /etc/pam.d/login line 4 : auth       include      postlogin
+* /etc/pam.d/sshd does not include any 'auth include' password control inheritance statement.
+  - /etc/pam.d/sshd line 5 : auth       include      postlogin
+* /etc/pam.d/su does not include any 'auth include' password control inheritance statement.
+  - /etc/pam.d/su line 8 : auth		include		postlogin
+* /etc/pam.d/sshd does not include any 'account include' password control inheritance statement.
+  - /etc/pam.d/sshd line 9 : account    include      password-auth
+* /etc/pam.d/passwd does not include any 'password include' password control inheritance statement.
+* /etc/pam.d/sshd does not include any 'password include' password control inheritance statement.
+  - /etc/pam.d/sshd line 10 : password   include      password-auth
+* /etc/pam.d/system-auth Password statement does not conform to remember=8 requirement. Template is ... password (required|sufficient) pam_unix.so remember=8 use_authtok (md5|sha512) shadow
+  - /etc/pam.d/system-auth line 15 : password    sufficient    pam_unix.so sha512 shadow nullok try_first_pass use_authtok
+* /etc/pam.d/password-auth Password statement does not conform to remember=8 requirement. Template is ... password (required|sufficient) pam_unix.so remember=8 use_authtok (md5|sha512) shadow
+  - /etc/pam.d/password-auth line 15 : password    sufficient    pam_unix.so sha512 shadow nullok try_first_pass use_authtok
+* Users must not change their password more than once every 1 days
+  - run "passwd -n 1 username" for users:
+  - root
+  - vp
+  - ansible
+* Prevent reuse of previous 9 passwords
+  - Add attribute "remember=8" at /etc/pam.d/system-auth line 15
+  - Add attribute "remember=8" at /etc/pam.d/password-auth line 15
+  - Add attribute "remember=8" at /etc/pam.d/password-auth-ac line 15
+  - Add attribute "remember=8" at /etc/pam.d/system-auth-ac line 15
+* Invoking /etc/profile as example non-system userid ed (uid 1005) sets umask=002,
+    should set umask=077 for all users with uid>199
+* Required file /etc/profile.d/IBMsinit.sh is missing
+* /etc/profile.d/IBMsinit.sh must have permission 0755
+  - Currently does not exist
+* /etc/cron.d/0hourly - Non-absolute path to executable detected
+  - run-parts found at line 5 : 01 * * * * root run-parts /etc/cron.hourly
+* Insecure consoles are defined in /etc/securetty
+  - ttysclp0
+  - sclp_line0
+  - 3270/tty1
+  - xvc0
+* Prevent remote root logins
+  - /etc/pam.d/login should contain:
+    auth required pam_securetty.so
+* 5 PAM modules that are used are not installed.
+  - pam_ck_connector.so is used by login.
+  - pam_fprintd.so is used by fingerprint-auth and fingerprint-auth-ac.
+  - pam_gnome_keyring.so is used by passwd.
+  - pam_pkcs11.so is used by smartcard-auth and smartcard-auth-ac.
+  - pam_reauthorize.so is used by sshd and sshd.9280.2019-02-14@23:06:22~.
+* /var/log/secure is only being kept for 28 days (should be 90)
+  - Increase rotation to 13 or more in /etc/logrotate.conf line 6
+* /var/log/messages is only being kept for 28 days (should be 90)
+  - Increase rotation to 13 or more in /etc/logrotate.conf line 6
+* /var/log/wtmp is only being kept for 29.6 days (should be 90)
+  - Increase rotation to 4 or more in /etc/logrotate.conf line 25
+* Kernel parameter net.ipv4.conf.all.accept_redirects is invalid(1).
+  - Contents of /proc/sys/net/ipv4/conf/all/accept_redirects should be 0
+* Missing entry for 'PermitRootLogin' in /etc/ssh/sshd_config
+  - It should be "no"
+* Missing entry for 'MaxAuthTries' in /etc/ssh/sshd_config
+  - It should be "5 or less"
+* Missing entry for 'LogLevel' in /etc/ssh/sshd_config
+  - It should be "INFO or higher"
+* Some services accept empty passwords
+  - Remove nullok parameters from the following files to fix it:
+  - /etc/pam.d/password-auth line 5 (9)
+  - /etc/pam.d/password-auth-ac line 5 (1)
+  - /etc/pam.d/system-auth line 5 (13)
+  - /etc/pam.d/system-auth-ac line 5 (1)
+* None of the suggested NTP config files could be read
+  - /etc/ntp.conf
+  - /etc/xntp.conf
+  - /etc/chrony.confnon-zero return code
+9.209.0.144 | FAILED | rc=34 >>
+Hostname: SL-London-Internet.innovate.ibm.com
+Tonic v1.19
+Configuration: ITCS 104 v12.5 ($Revision: 1.389 $ $Date: 2016/03/16 13:15:07 $)
+Run date: 2019-05-17 01:34 CDT
+Passed: 417 of 451 (92%)
+
+Warnings:
+* You must enforce the following password length and quality requirements
+  - attribute check skipped - pam_cracklib.so line not found in /etc/pam.d/system-auth.
+* Users should change their passwords every 90 days
+  - /etc/login.defs (line 25) should have PASS_MAX_DAYS <= 90
+* Users should not change their passwords more than every 1 days
+  - /etc/login.defs (line 26) should have PASS_MIN_DAYS >= 1
+* You must set the following variables in /etc/login.defs
+  - FAILLOG_ENAB
+* /etc/pam.d/login does not include any 'auth include' password control inheritance statement.
+  - /etc/pam.d/login line 4 : auth       include      postlogin
+* /etc/pam.d/sshd does not include any 'auth include' password control inheritance statement.
+  - /etc/pam.d/sshd line 5 : auth       include      postlogin
+* /etc/pam.d/su does not include any 'auth include' password control inheritance statement.
+  - /etc/pam.d/su line 8 : auth		include		postlogin
+* /etc/pam.d/sshd does not include any 'account include' password control inheritance statement.
+  - /etc/pam.d/sshd line 9 : account    include      password-auth
+* /etc/pam.d/passwd does not include any 'password include' password control inheritance statement.
+* /etc/pam.d/sshd does not include any 'password include' password control inheritance statement.
+  - /etc/pam.d/sshd line 10 : password   include      password-auth
+* /etc/pam.d/system-auth Password statement does not conform to remember=8 requirement. Template is ... password (required|sufficient) pam_unix.so remember=8 use_authtok (md5|sha512) shadow
+  - /etc/pam.d/system-auth line 15 : password    sufficient    pam_unix.so sha512 shadow nullok try_first_pass use_authtok
+* /etc/pam.d/password-auth Password statement does not conform to remember=8 requirement. Template is ... password (required|sufficient) pam_unix.so remember=8 use_authtok (md5|sha512) shadow
+  - /etc/pam.d/password-auth line 15 : password    sufficient    pam_unix.so sha512 shadow nullok try_first_pass use_authtok
+* Users must not change their password more than once every 1 days
+  - run "passwd -n 1 username" for users:
+  - root
+  - ftptest1
+  - yramm1
+  - yfranca
+  - iccsap
+  - vp
+  - ansible
+* Prevent reuse of previous 9 passwords
+  - Add attribute "remember=8" at /etc/pam.d/system-auth line 15
+  - Add attribute "remember=8" at /etc/pam.d/password-auth line 15
+  - Add attribute "remember=8" at /etc/pam.d/password-auth-ac line 15
+  - Add attribute "remember=8" at /etc/pam.d/system-auth-ac line 15
+* Invoking /etc/profile as example non-system userid ed (uid 1009) sets umask=002,
+    should set umask=077 for all users with uid>199
+* Required file /etc/profile.d/IBMsinit.sh is missing
+* /etc/profile.d/IBMsinit.sh must have permission 0755
+  - Currently does not exist
+* /etc/cron.d/0hourly - Non-absolute path to executable detected
+  - run-parts found at line 5 : 01 * * * * root run-parts /etc/cron.hourly
+* /opt/IBM permissions problems detected
+  - /opt/IBM is owned by user iccsap(1003) not OSR user
+    add user to /etc/tonic/remind/Extra_Privileged_Users to declare privilege
+* Insecure consoles are defined in /etc/securetty
+  - ttysclp0
+  - sclp_line0
+  - 3270/tty1
+  - xvc0
+* Prevent remote root logins
+  - /etc/pam.d/login should contain:
+    auth required pam_securetty.so
+* 5 PAM modules that are used are not installed.
+  - pam_ck_connector.so is used by login.
+  - pam_fprintd.so is used by fingerprint-auth and fingerprint-auth-ac.
+  - pam_gnome_keyring.so is used by passwd.
+  - pam_pkcs11.so is used by smartcard-auth and smartcard-auth-ac.
+  - pam_reauthorize.so is used by sshd and sshd.8812.2019-02-14@23:06:23~.
+* /var/log/secure is only being kept for 28 days (should be 90)
+  - Increase rotation to 13 or more in /etc/logrotate.conf line 6
+* /var/log/messages is only being kept for 28 days (should be 90)
+  - Increase rotation to 13 or more in /etc/logrotate.conf line 6
+* /var/log/wtmp is only being kept for 29.6 days (should be 90)
+  - Increase rotation to 4 or more in /etc/logrotate.conf line 25
+* You must confirm that Anonymous FTP directories contain no IBM Confidential data
+  - When you have completed this action, "touch /etc/tonic/remind/FTP_data_not_IBM_Confidential".
+* You must confirm that a process is in place so that anonymously uploaded data is manually checked for IBM Confidential data
+  - When you have completed this action, "touch /etc/tonic/remind/Uploaded_data_not_IBM_Confidential".
+* Kernel parameter net.ipv4.conf.all.accept_redirects is invalid(1).
+  - Contents of /proc/sys/net/ipv4/conf/all/accept_redirects should be 0
+* SSH private keys must not give any access to non-owner.
+  - /etc/ssh/ssh_host_ecdsa_key gives some access to group/other (change permissions to 0600)
+  - /etc/ssh/ssh_host_ed25519_key gives some access to group/other (change permissions to 0600)
+  - /etc/ssh/ssh_host_rsa_key gives some access to group/other (change permissions to 0600)
+* Missing entry for 'PermitRootLogin' in /etc/ssh/sshd_config
+  - It should be "no"
+* Missing entry for 'MaxAuthTries' in /etc/ssh/sshd_config
+  - It should be "5 or less"
+* Missing entry for 'LogLevel' in /etc/ssh/sshd_config
+  - It should be "INFO or higher"
+* Some services accept empty passwords
+  - Remove nullok parameters from the following files to fix it:
+  - /etc/pam.d/password-auth line 5 (10)
+  - /etc/pam.d/password-auth-ac line 5 (1)
+  - /etc/pam.d/system-auth line 5 (13)
+  - /etc/pam.d/system-auth-ac line 5 (1)
+* None of the suggested NTP config files could be read
+  - /etc/ntp.conf
+  - /etc/xntp.conf
+  - /etc/chrony.confnon-zero return code
+9.209.6.208 | FAILED | rc=31 >>
+Hostname: SL-Amsterdam-Internet.innovate.ibm.com
+Tonic v1.19
+Configuration: ITCS 104 v12.5 ($Revision: 1.389 $ $Date: 2016/03/16 13:15:07 $)
+Run date: 2019-05-17 01:34 CDT
+Passed: 413 of 444 (93%)
+
+Warnings:
+* You must enforce the following password length and quality requirements
+  - attribute check skipped - pam_cracklib.so line not found in /etc/pam.d/system-auth.
+* Users should change their passwords every 90 days
+  - /etc/login.defs (line 25) should have PASS_MAX_DAYS <= 90
+* Users should not change their passwords more than every 1 days
+  - /etc/login.defs (line 26) should have PASS_MIN_DAYS >= 1
+* You must set the following variables in /etc/login.defs
+  - FAILLOG_ENAB
+* /etc/pam.d/login does not include any 'auth include' password control inheritance statement.
+  - /etc/pam.d/login line 4 : auth       include      postlogin
+* /etc/pam.d/sshd does not include any 'auth include' password control inheritance statement.
+  - /etc/pam.d/sshd line 5 : auth       include      postlogin
+* /etc/pam.d/su does not include any 'auth include' password control inheritance statement.
+  - /etc/pam.d/su line 8 : auth		include		postlogin
+* /etc/pam.d/sshd does not include any 'account include' password control inheritance statement.
+  - /etc/pam.d/sshd line 9 : account    include      password-auth
+* /etc/pam.d/passwd does not include any 'password include' password control inheritance statement.
+* /etc/pam.d/sshd does not include any 'password include' password control inheritance statement.
+  - /etc/pam.d/sshd line 10 : password   include      password-auth
+* /etc/pam.d/system-auth Password statement does not conform to remember=8 requirement. Template is ... password (required|sufficient) pam_unix.so remember=8 use_authtok (md5|sha512) shadow
+  - /etc/pam.d/system-auth line 15 : password    sufficient    pam_unix.so sha512 shadow nullok try_first_pass use_authtok
+* /etc/pam.d/password-auth Password statement does not conform to remember=8 requirement. Template is ... password (required|sufficient) pam_unix.so remember=8 use_authtok (md5|sha512) shadow
+  - /etc/pam.d/password-auth line 15 : password    sufficient    pam_unix.so sha512 shadow nullok try_first_pass use_authtok
+* Users must not change their password more than once every 1 days
+  - run "passwd -n 1 username" for users:
+  - root
+  - veeren
+* Prevent reuse of previous 9 passwords
+  - Add attribute "remember=8" at /etc/pam.d/system-auth line 15
+  - Add attribute "remember=8" at /etc/pam.d/password-auth line 15
+  - Add attribute "remember=8" at /etc/pam.d/password-auth-ac line 15
+  - Add attribute "remember=8" at /etc/pam.d/system-auth-ac line 15
+* Invoking /etc/profile as example non-system userid ahandiqu (uid 1007) sets umask=022,
+    should set umask=077 for all users with uid>199
+* Required file /etc/profile.d/IBMsinit.sh is missing
+* /etc/profile.d/IBMsinit.sh must have permission 0755
+  - Currently does not exist
+* /etc/cron.d/0hourly - Non-absolute path to executable detected
+  - run-parts found at line 5 : 01 * * * * root run-parts /etc/cron.hourly
+* Insecure consoles are defined in /etc/securetty
+  - ttysclp0
+  - sclp_line0
+  - 3270/tty1
+  - xvc0
+* Prevent remote root logins
+  - /etc/pam.d/login should contain:
+    auth required pam_securetty.so
+* 5 PAM modules that are used are not installed.
+  - pam_ck_connector.so is used by login.
+  - pam_fprintd.so is used by fingerprint-auth and fingerprint-auth-ac.
+  - pam_gnome_keyring.so is used by passwd.
+  - pam_pkcs11.so is used by smartcard-auth and smartcard-auth-ac.
+  - pam_reauthorize.so is used by sshd and sshd.30250.2019-02-13@02:52:08~.
+* /var/log/secure is only being kept for 28 days (should be 90)
+  - Increase rotation to 13 or more in /etc/logrotate.conf line 6
+* /var/log/messages is only being kept for 28 days (should be 90)
+  - Increase rotation to 13 or more in /etc/logrotate.conf line 6
+* /var/log/wtmp is only being kept for 29.6 days (should be 90)
+  - Increase rotation to 4 or more in /etc/logrotate.conf line 25
+* Kernel parameter net.ipv4.conf.all.accept_redirects is invalid(1).
+  - Contents of /proc/sys/net/ipv4/conf/all/accept_redirects should be 0
+* SSH private keys must not give any access to non-owner.
+  - /etc/ssh/ssh_host_ecdsa_key gives some access to group/other (change permissions to 0600)
+  - /etc/ssh/ssh_host_ed25519_key gives some access to group/other (change permissions to 0600)
+  - /etc/ssh/ssh_host_rsa_key gives some access to group/other (change permissions to 0600)
+* Missing entry for 'PermitRootLogin' in /etc/ssh/sshd_config
+  - It should be "no"
+* Missing entry for 'MaxAuthTries' in /etc/ssh/sshd_config
+  - It should be "5 or less"
+* Missing entry for 'LogLevel' in /etc/ssh/sshd_config
+  - It should be "INFO or higher"
+* Some services accept empty passwords
+  - Remove nullok parameters from the following files to fix it:
+  - /etc/pam.d/password-auth line 5 (9)
+  - /etc/pam.d/password-auth-ac line 5 (1)
+  - /etc/pam.d/system-auth line 5 (13)
+  - /etc/pam.d/system-auth-ac line 5 (1)
+* None of the suggested NTP config files could be read
+  - /etc/ntp.conf
+  - /etc/xntp.conf
+  - /etc/chrony.confnon-zero return code
+9.209.6.224 | FAILED | rc=31 >>
+Hostname: SL-Seattle-Internet.innovate.ibm.com
+Tonic v1.19
+Configuration: ITCS 104 v12.5 ($Revision: 1.389 $ $Date: 2016/03/16 13:15:07 $)
+Run date: 2019-05-17 01:34 CDT
+Passed: 413 of 444 (93%)
+
+Warnings:
+* You must enforce the following password length and quality requirements
+  - attribute check skipped - pam_cracklib.so line not found in /etc/pam.d/system-auth.
+* Users should change their passwords every 90 days
+  - /etc/login.defs (line 25) should have PASS_MAX_DAYS <= 90
+* Users should not change their passwords more than every 1 days
+  - /etc/login.defs (line 26) should have PASS_MIN_DAYS >= 1
+* You must set the following variables in /etc/login.defs
+  - FAILLOG_ENAB
+* /etc/pam.d/login does not include any 'auth include' password control inheritance statement.
+  - /etc/pam.d/login line 4 : auth       include      postlogin
+* /etc/pam.d/sshd does not include any 'auth include' password control inheritance statement.
+  - /etc/pam.d/sshd line 5 : auth       include      postlogin
+* /etc/pam.d/su does not include any 'auth include' password control inheritance statement.
+  - /etc/pam.d/su line 8 : auth		include		postlogin
+* /etc/pam.d/sshd does not include any 'account include' password control inheritance statement.
+  - /etc/pam.d/sshd line 9 : account    include      password-auth
+* /etc/pam.d/passwd does not include any 'password include' password control inheritance statement.
+* /etc/pam.d/sshd does not include any 'password include' password control inheritance statement.
+  - /etc/pam.d/sshd line 10 : password   include      password-auth
+* /etc/pam.d/system-auth Password statement does not conform to remember=8 requirement. Template is ... password (required|sufficient) pam_unix.so remember=8 use_authtok (md5|sha512) shadow
+  - /etc/pam.d/system-auth line 15 : password    sufficient    pam_unix.so sha512 shadow nullok try_first_pass use_authtok
+* /etc/pam.d/password-auth Password statement does not conform to remember=8 requirement. Template is ... password (required|sufficient) pam_unix.so remember=8 use_authtok (md5|sha512) shadow
+  - /etc/pam.d/password-auth line 15 : password    sufficient    pam_unix.so sha512 shadow nullok try_first_pass use_authtok
+* Users must not change their password more than once every 1 days
+  - run "passwd -n 1 username" for users:
+  - root
+* Prevent reuse of previous 9 passwords
+  - Add attribute "remember=8" at /etc/pam.d/system-auth line 15
+  - Add attribute "remember=8" at /etc/pam.d/password-auth line 15
+  - Add attribute "remember=8" at /etc/pam.d/password-auth-ac line 15
+  - Add attribute "remember=8" at /etc/pam.d/system-auth-ac line 15
+* Invoking /etc/profile as example non-system userid shankars (uid 1001) sets umask=002,
+    should set umask=077 for all users with uid>199
+* Required file /etc/profile.d/IBMsinit.sh is missing
+* /etc/profile.d/IBMsinit.sh must have permission 0755
+  - Currently does not exist
+* /etc/cron.d/0hourly - Non-absolute path to executable detected
+  - run-parts found at line 5 : 01 * * * * root run-parts /etc/cron.hourly
+* Insecure consoles are defined in /etc/securetty
+  - ttysclp0
+  - sclp_line0
+  - 3270/tty1
+  - xvc0
+* Prevent remote root logins
+  - /etc/pam.d/login should contain:
+    auth required pam_securetty.so
+* 5 PAM modules that are used are not installed.
+  - pam_ck_connector.so is used by login.
+  - pam_fprintd.so is used by fingerprint-auth and fingerprint-auth-ac.
+  - pam_gnome_keyring.so is used by passwd.
+  - pam_pkcs11.so is used by smartcard-auth and smartcard-auth-ac.
+  - pam_reauthorize.so is used by sshd and sshd.16518.2019-05-07@07:17:34~.
+* /var/log/secure is only being kept for 28 days (should be 90)
+  - Increase rotation to 13 or more in /etc/logrotate.conf line 6
+* /var/log/messages is only being kept for 28 days (should be 90)
+  - Increase rotation to 13 or more in /etc/logrotate.conf line 6
+* /var/log/wtmp is only being kept for 29.6 days (should be 90)
+  - Increase rotation to 4 or more in /etc/logrotate.conf line 25
+* Kernel parameter net.ipv4.conf.all.accept_redirects is invalid(1).
+  - Contents of /proc/sys/net/ipv4/conf/all/accept_redirects should be 0
+* SSH private keys must not give any access to non-owner.
+  - /etc/ssh/ssh_host_ecdsa_key gives some access to group/other (change permissions to 0600)
+  - /etc/ssh/ssh_host_ed25519_key gives some access to group/other (change permissions to 0600)
+  - /etc/ssh/ssh_host_rsa_key gives some access to group/other (change permissions to 0600)
+* Missing entry for 'PermitRootLogin' in /etc/ssh/sshd_config
+  - It should be "no"
+* Missing entry for 'MaxAuthTries' in /etc/ssh/sshd_config
+  - It should be "5 or less"
+* Missing entry for 'LogLevel' in /etc/ssh/sshd_config
+  - It should be "INFO or higher"
+* Some services accept empty passwords
+  - Remove nullok parameters from the following files to fix it:
+  - /etc/pam.d/password-auth line 5 (9)
+  - /etc/pam.d/password-auth-ac line 5 (1)
+  - /etc/pam.d/system-auth line 5 (13)
+  - /etc/pam.d/system-auth-ac line 5 (1)
+* None of the suggested NTP config files could be read
+  - /etc/ntp.conf
+  - /etc/xntp.conf
+  - /etc/chrony.confnon-zero return code
+9.209.6.48 | FAILED | rc=30 >>
+Hostname: SL-Chennai-Internet.innovate.ibm.com
+Tonic v1.19
+Configuration: ITCS 104 v12.5 ($Revision: 1.389 $ $Date: 2016/03/16 13:15:07 $)
+Run date: 2019-05-17 01:34 CDT
+Passed: 412 of 442 (93%)
+
+Warnings:
+* You must enforce the following password length and quality requirements
+  - attribute check skipped - pam_cracklib.so line not found in /etc/pam.d/system-auth.
+* Users should change their passwords every 90 days
+  - /etc/login.defs (line 25) should have PASS_MAX_DAYS <= 90
+* Users should not change their passwords more than every 1 days
+  - /etc/login.defs (line 26) should have PASS_MIN_DAYS >= 1
+* You must set the following variables in /etc/login.defs
+  - FAILLOG_ENAB
+* /etc/pam.d/login does not include any 'auth include' password control inheritance statement.
+  - /etc/pam.d/login line 4 : auth       include      postlogin
+* /etc/pam.d/sshd does not include any 'auth include' password control inheritance statement.
+  - /etc/pam.d/sshd line 5 : auth       include      postlogin
+* /etc/pam.d/su does not include any 'auth include' password control inheritance statement.
+  - /etc/pam.d/su line 8 : auth		include		postlogin
+* /etc/pam.d/sshd does not include any 'account include' password control inheritance statement.
+  - /etc/pam.d/sshd line 9 : account    include      password-auth
+* /etc/pam.d/passwd does not include any 'password include' password control inheritance statement.
+* /etc/pam.d/sshd does not include any 'password include' password control inheritance statement.
+  - /etc/pam.d/sshd line 10 : password   include      password-auth
+* /etc/pam.d/system-auth Password statement does not conform to remember=8 requirement. Template is ... password (required|sufficient) pam_unix.so remember=8 use_authtok (md5|sha512) shadow
+  - /etc/pam.d/system-auth line 15 : password    sufficient    pam_unix.so sha512 shadow nullok try_first_pass use_authtok
+* /etc/pam.d/password-auth Password statement does not conform to remember=8 requirement. Template is ... password (required|sufficient) pam_unix.so remember=8 use_authtok (md5|sha512) shadow
+  - /etc/pam.d/password-auth line 15 : password    sufficient    pam_unix.so sha512 shadow nullok try_first_pass use_authtok
+* Users must not change their password more than once every 1 days
+  - run "passwd -n 1 username" for users:
+  - root
+  - vp
+  - ansible
+* Prevent reuse of previous 9 passwords
+  - Add attribute "remember=8" at /etc/pam.d/system-auth line 15
+  - Add attribute "remember=8" at /etc/pam.d/password-auth line 15
+  - Add attribute "remember=8" at /etc/pam.d/password-auth-ac line 15
+  - Add attribute "remember=8" at /etc/pam.d/system-auth-ac line 15
+* Invoking /etc/profile as example non-system userid ed (uid 1005) sets umask=002,
+    should set umask=077 for all users with uid>199
+* Required file /etc/profile.d/IBMsinit.sh is missing
+* /etc/profile.d/IBMsinit.sh must have permission 0755
+  - Currently does not exist
+* /etc/cron.d/0hourly - Non-absolute path to executable detected
+  - run-parts found at line 5 : 01 * * * * root run-parts /etc/cron.hourly
+* Insecure consoles are defined in /etc/securetty
+  - ttysclp0
+  - sclp_line0
+  - 3270/tty1
+  - xvc0
+* Prevent remote root logins
+  - /etc/pam.d/login should contain:
+    auth required pam_securetty.so
+* 5 PAM modules that are used are not installed.
+  - pam_ck_connector.so is used by login.
+  - pam_fprintd.so is used by fingerprint-auth and fingerprint-auth-ac.
+  - pam_gnome_keyring.so is used by passwd.
+  - pam_pkcs11.so is used by smartcard-auth and smartcard-auth-ac.
+  - pam_reauthorize.so is used by sshd and sshd.8357.2019-02-14@23:06:29~.
+* /var/log/secure is only being kept for 28 days (should be 90)
+  - Increase rotation to 13 or more in /etc/logrotate.conf line 6
+* /var/log/messages is only being kept for 28 days (should be 90)
+  - Increase rotation to 13 or more in /etc/logrotate.conf line 6
+* /var/log/wtmp is only being kept for 29.6 days (should be 90)
+  - Increase rotation to 4 or more in /etc/logrotate.conf line 25
+* Kernel parameter net.ipv4.conf.all.accept_redirects is invalid(1).
+  - Contents of /proc/sys/net/ipv4/conf/all/accept_redirects should be 0
+* Missing entry for 'PermitRootLogin' in /etc/ssh/sshd_config
+  - It should be "no"
+* Missing entry for 'MaxAuthTries' in /etc/ssh/sshd_config
+  - It should be "5 or less"
+* Missing entry for 'LogLevel' in /etc/ssh/sshd_config
+  - It should be "INFO or higher"
+* Some services accept empty passwords
+  - Remove nullok parameters from the following files to fix it:
+  - /etc/pam.d/password-auth line 5 (9)
+  - /etc/pam.d/password-auth-ac line 5 (1)
+  - /etc/pam.d/system-auth line 5 (13)
+  - /etc/pam.d/system-auth-ac line 5 (1)
+* None of the suggested NTP config files could be read
+  - /etc/ntp.conf
+  - /etc/xntp.conf
+  - /etc/chrony.confnon-zero return code
+9.209.6.80 | FAILED | rc=31 >>
+Hostname: SL-Singapore-Internet.innovate.ibm.com
+Tonic v1.19
+Configuration: ITCS 104 v12.5 ($Revision: 1.389 $ $Date: 2016/03/16 13:15:07 $)
+Run date: 2019-05-17 01:34 CDT
+Passed: 413 of 444 (93%)
+
+Warnings:
+* You must enforce the following password length and quality requirements
+  - attribute check skipped - pam_cracklib.so line not found in /etc/pam.d/system-auth.
+* Users should change their passwords every 90 days
+  - /etc/login.defs (line 25) should have PASS_MAX_DAYS <= 90
+* Users should not change their passwords more than every 1 days
+  - /etc/login.defs (line 26) should have PASS_MIN_DAYS >= 1
+* You must set the following variables in /etc/login.defs
+  - FAILLOG_ENAB
+* /etc/pam.d/login does not include any 'auth include' password control inheritance statement.
+  - /etc/pam.d/login line 4 : auth       include      postlogin
+* /etc/pam.d/sshd does not include any 'auth include' password control inheritance statement.
+  - /etc/pam.d/sshd line 5 : auth       include      postlogin
+* /etc/pam.d/su does not include any 'auth include' password control inheritance statement.
+  - /etc/pam.d/su line 8 : auth		include		postlogin
+* /etc/pam.d/sshd does not include any 'account include' password control inheritance statement.
+  - /etc/pam.d/sshd line 9 : account    include      password-auth
+* /etc/pam.d/passwd does not include any 'password include' password control inheritance statement.
+* /etc/pam.d/sshd does not include any 'password include' password control inheritance statement.
+  - /etc/pam.d/sshd line 10 : password   include      password-auth
+* /etc/pam.d/system-auth Password statement does not conform to remember=8 requirement. Template is ... password (required|sufficient) pam_unix.so remember=8 use_authtok (md5|sha512) shadow
+  - /etc/pam.d/system-auth line 15 : password    sufficient    pam_unix.so sha512 shadow nullok try_first_pass use_authtok
+* /etc/pam.d/password-auth Password statement does not conform to remember=8 requirement. Template is ... password (required|sufficient) pam_unix.so remember=8 use_authtok (md5|sha512) shadow
+  - /etc/pam.d/password-auth line 15 : password    sufficient    pam_unix.so sha512 shadow nullok try_first_pass use_authtok
+* Users must not change their password more than once every 1 days
+  - run "passwd -n 1 username" for users:
+  - root
+* Prevent reuse of previous 9 passwords
+  - Add attribute "remember=8" at /etc/pam.d/system-auth line 15
+  - Add attribute "remember=8" at /etc/pam.d/password-auth line 15
+  - Add attribute "remember=8" at /etc/pam.d/password-auth-ac line 15
+  - Add attribute "remember=8" at /etc/pam.d/system-auth-ac line 15
+* Invoking /etc/profile as example non-system userid shankars (uid 1001) sets umask=002,
+    should set umask=077 for all users with uid>199
+* Required file /etc/profile.d/IBMsinit.sh is missing
+* /etc/profile.d/IBMsinit.sh must have permission 0755
+  - Currently does not exist
+* /etc/cron.d/0hourly - Non-absolute path to executable detected
+  - run-parts found at line 5 : 01 * * * * root run-parts /etc/cron.hourly
+* Insecure consoles are defined in /etc/securetty
+  - ttysclp0
+  - sclp_line0
+  - 3270/tty1
+  - xvc0
+* Prevent remote root logins
+  - /etc/pam.d/login should contain:
+    auth required pam_securetty.so
+* 5 PAM modules that are used are not installed.
+  - pam_ck_connector.so is used by login.
+  - pam_fprintd.so is used by fingerprint-auth and fingerprint-auth-ac.
+  - pam_gnome_keyring.so is used by passwd.
+  - pam_pkcs11.so is used by smartcard-auth and smartcard-auth-ac.
+  - pam_reauthorize.so is used by sshd and sshd.25253.2019-05-07@07:30:47~.
+* /var/log/secure is only being kept for 28 days (should be 90)
+  - Increase rotation to 13 or more in /etc/logrotate.conf line 6
+* /var/log/messages is only being kept for 28 days (should be 90)
+  - Increase rotation to 13 or more in /etc/logrotate.conf line 6
+* /var/log/wtmp is only being kept for 29.6 days (should be 90)
+  - Increase rotation to 4 or more in /etc/logrotate.conf line 25
+* Kernel parameter net.ipv4.conf.all.accept_redirects is invalid(1).
+  - Contents of /proc/sys/net/ipv4/conf/all/accept_redirects should be 0
+* SSH private keys must not give any access to non-owner.
+  - /etc/ssh/ssh_host_ecdsa_key gives some access to group/other (change permissions to 0600)
+  - /etc/ssh/ssh_host_ed25519_key gives some access to group/other (change permissions to 0600)
+  - /etc/ssh/ssh_host_rsa_key gives some access to group/other (change permissions to 0600)
+* Missing entry for 'PermitRootLogin' in /etc/ssh/sshd_config
+  - It should be "no"
+* Missing entry for 'MaxAuthTries' in /etc/ssh/sshd_config
+  - It should be "5 or less"
+* Missing entry for 'LogLevel' in /etc/ssh/sshd_config
+  - It should be "INFO or higher"
+* Some services accept empty passwords
+  - Remove nullok parameters from the following files to fix it:
+  - /etc/pam.d/password-auth line 5 (9)
+  - /etc/pam.d/password-auth-ac line 5 (1)
+  - /etc/pam.d/system-auth line 5 (13)
+  - /etc/pam.d/system-auth-ac line 5 (1)
+* None of the suggested NTP config files could be read
+  - /etc/ntp.conf
+  - /etc/xntp.conf
+  - /etc/chrony.confnon-zero return code
+9.209.6.32 | FAILED | rc=31 >>
+Hostname: SL-Sydney-Internet.innovate.ibm.com
+Tonic v1.19
+Configuration: ITCS 104 v12.5 ($Revision: 1.389 $ $Date: 2016/03/16 13:15:07 $)
+Run date: 2019-05-17 01:34 CDT
+Passed: 413 of 444 (93%)
+
+Warnings:
+* You must enforce the following password length and quality requirements
+  - attribute check skipped - pam_cracklib.so line not found in /etc/pam.d/system-auth.
+* Users should change their passwords every 90 days
+  - /etc/login.defs (line 25) should have PASS_MAX_DAYS <= 90
+* Users should not change their passwords more than every 1 days
+  - /etc/login.defs (line 26) should have PASS_MIN_DAYS >= 1
+* You must set the following variables in /etc/login.defs
+  - FAILLOG_ENAB
+* /etc/pam.d/login does not include any 'auth include' password control inheritance statement.
+  - /etc/pam.d/login line 4 : auth       include      postlogin
+* /etc/pam.d/sshd does not include any 'auth include' password control inheritance statement.
+  - /etc/pam.d/sshd line 5 : auth       include      postlogin
+* /etc/pam.d/su does not include any 'auth include' password control inheritance statement.
+  - /etc/pam.d/su line 8 : auth		include		postlogin
+* /etc/pam.d/sshd does not include any 'account include' password control inheritance statement.
+  - /etc/pam.d/sshd line 9 : account    include      password-auth
+* /etc/pam.d/passwd does not include any 'password include' password control inheritance statement.
+* /etc/pam.d/sshd does not include any 'password include' password control inheritance statement.
+  - /etc/pam.d/sshd line 10 : password   include      password-auth
+* /etc/pam.d/system-auth Password statement does not conform to remember=8 requirement. Template is ... password (required|sufficient) pam_unix.so remember=8 use_authtok (md5|sha512) shadow
+  - /etc/pam.d/system-auth line 15 : password    sufficient    pam_unix.so sha512 shadow nullok try_first_pass use_authtok
+* /etc/pam.d/password-auth Password statement does not conform to remember=8 requirement. Template is ... password (required|sufficient) pam_unix.so remember=8 use_authtok (md5|sha512) shadow
+  - /etc/pam.d/password-auth line 15 : password    sufficient    pam_unix.so sha512 shadow nullok try_first_pass use_authtok
+* Users must not change their password more than once every 1 days
+  - run "passwd -n 1 username" for users:
+  - root
+* Prevent reuse of previous 9 passwords
+  - Add attribute "remember=8" at /etc/pam.d/system-auth line 15
+  - Add attribute "remember=8" at /etc/pam.d/password-auth line 15
+  - Add attribute "remember=8" at /etc/pam.d/password-auth-ac line 15
+  - Add attribute "remember=8" at /etc/pam.d/system-auth-ac line 15
+* Invoking /etc/profile as example non-system userid accesshubid (uid 1001) sets umask=002,
+    should set umask=077 for all users with uid>199
+* Required file /etc/profile.d/IBMsinit.sh is missing
+* /etc/profile.d/IBMsinit.sh must have permission 0755
+  - Currently does not exist
+* /etc/cron.d/0hourly - Non-absolute path to executable detected
+  - run-parts found at line 5 : 01 * * * * root run-parts /etc/cron.hourly
+* Insecure consoles are defined in /etc/securetty
+  - ttysclp0
+  - sclp_line0
+  - 3270/tty1
+  - xvc0
+* Prevent remote root logins
+  - /etc/pam.d/login should contain:
+    auth required pam_securetty.so
+* 5 PAM modules that are used are not installed.
+  - pam_ck_connector.so is used by login.
+  - pam_fprintd.so is used by fingerprint-auth and fingerprint-auth-ac.
+  - pam_gnome_keyring.so is used by passwd.
+  - pam_pkcs11.so is used by smartcard-auth and smartcard-auth-ac.
+  - pam_reauthorize.so is used by sshd and sshd.30333.2019-05-07@07:27:57~.
+* /var/log/secure is only being kept for 28 days (should be 90)
+  - Increase rotation to 13 or more in /etc/logrotate.conf line 6
+* /var/log/messages is only being kept for 28 days (should be 90)
+  - Increase rotation to 13 or more in /etc/logrotate.conf line 6
+* /var/log/wtmp is only being kept for 29.6 days (should be 90)
+  - Increase rotation to 4 or more in /etc/logrotate.conf line 25
+* Kernel parameter net.ipv4.conf.all.accept_redirects is invalid(1).
+  - Contents of /proc/sys/net/ipv4/conf/all/accept_redirects should be 0
+* SSH private keys must not give any access to non-owner.
+  - /etc/ssh/ssh_host_ecdsa_key gives some access to group/other (change permissions to 0600)
+  - /etc/ssh/ssh_host_ed25519_key gives some access to group/other (change permissions to 0600)
+  - /etc/ssh/ssh_host_rsa_key gives some access to group/other (change permissions to 0600)
+* Missing entry for 'PermitRootLogin' in /etc/ssh/sshd_config
+  - It should be "no"
+* Missing entry for 'MaxAuthTries' in /etc/ssh/sshd_config
+  - It should be "5 or less"
+* Missing entry for 'LogLevel' in /etc/ssh/sshd_config
+  - It should be "INFO or higher"
+* Some services accept empty passwords
+  - Remove nullok parameters from the following files to fix it:
+  - /etc/pam.d/password-auth line 5 (9)
+  - /etc/pam.d/password-auth-ac line 5 (1)
+  - /etc/pam.d/system-auth line 5 (13)
+  - /etc/pam.d/system-auth-ac line 5 (1)
+* None of the suggested NTP config files could be read
+  - /etc/ntp.conf
+  - /etc/xntp.conf
+  - /etc/chrony.confnon-zero return code

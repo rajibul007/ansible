@@ -1,0 +1,12 @@
+[sf]
+
+9.209.6.208   ansible_ssh_pass=Year2040!  ansible_user=root
+9.209.6.48    ansible_ssh_pass=Year2040!  ansible_user=root
+9.209.5.48		ansible_ssh_pass=Year2040! ansible_user=root
+9.209.0.144		ansible_ssh_pass=Year2040! ansible_user=root
+9.209.0.98		ansible_ssh_pass=Year2040! ansible_user=root
+9.209.6.224		ansible_ssh_pass=Year2040!	ansible_user=root
+9.209.6.80		ansible_ssh_pass=Year2040!  ansible_user=root
+9.209.6.32		ansible_ssh_pass=Year2040!  ansible_user=root
+
+

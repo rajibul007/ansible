@@ -1,0 +1,12 @@
+-
+  hosts: local
+  remote_user: isadmin
+  sudo: yes
+  tasks:
+   - fetch:
+       src: /health_check.log
+       dest: /tmp/
+   - fetch:
+       src: /test.txt
+       dest: dpev213.innovate.ibm.com:/tmp
+

@@ -1,0 +1,6 @@
+bflk8spxy101.innovate.ibm.com : ok=0    changed=0    unreachable=1    failed=0   
+dpev002.innovate.ibm.com   : ok=0    changed=0    unreachable=1    failed=0   
+dpev245.innovate.ibm.com   : ok=0    changed=0    unreachable=1    failed=0   
+bflk8spxy101.innovate.ibm.com : ok=0    changed=0    unreachable=1    failed=0   
+dpev002.innovate.ibm.com   : ok=0    changed=0    unreachable=1    failed=0   
+dpev245.innovate.ibm.com   : ok=0    changed=0    unreachable=1    failed=0   

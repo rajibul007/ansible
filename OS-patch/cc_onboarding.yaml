@@ -1,0 +1,75 @@
+-
+  hosts: all
+  remote_user: isadmin
+  sudo: yes
+  gather_facts: yes
+  vars:
+    mountname: '/opt'
+    mount: "{{ ansible_mounts | selectattr('mount','equalto', mountname) | first }}"
+### This play book is created for configuring Prerequisite for Onboarding Linux Endpoint ###
+
+  pre_tasks:
+  - name: Install wget package for CentOS / RedHat
+    yum:
+      name: 'wget'
+      state: present
+    when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
+    tags:
+      - packages_cr
+  - name: Install wget package for debian
+    apt:
+      name: 'wget'
+      state: present
+    when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+    tags:
+      - packages_deb
+### End of wget install section ###
+
+### User Creation ###
+  - name: Create automate ID
+    user:
+      name: automate
+      home: /home/automate
+      comment: "Automate ID"
+      state: present
+      append: yes
+#      group: automate
+      groups: ibmadmin
+      expires: -1
+### End User Creation ###
+
+### Creating user directory section ###
+  - name: Creating ssh directory for user automate
+    file:
+      path: /home/automate/.ssh
+      state: directory
+      mode: 0700
+### End of user directory creation section ###
+
+### Creating authorized keys ###
+  - name: Transferring authorized key to remote server
+    copy:
+      src: "packages/authorized_keys"
+      dest: "/home/automate/.ssh/"
+      owner: automate
+      group: automate
+      mode: 0600
+### End of Creating authorized keys ###
+
+### Copying command logger script  ###
+  - name: Copying 'command logger' script to endpoints
+    copy:
+      src: "packages/sshd_cmd_logger"
+      dest: "/home/automate/.ssh/"
+      owner: automate
+      group: automate
+      mode: 0750
+### End of Copying command logger ###
+
+### Creating directory for log history ###
+  - name: Creating 'hist' directory for logs
+    file:
+      path: /var/log/hist
+      state: directory
+      mode: 1777
+### End of creating log directory ###

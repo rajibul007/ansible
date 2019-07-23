@@ -1,0 +1,69 @@
+-
+ hosts: all
+ remote_user: isadmin
+ sudo: yes
+ gather_facts: no
+###
+ pre_tasks:
+ - name: Install python
+   raw: bash -c "test -e /usr/bin/python || (yum -y install python || (apt-get -qqy update && apt-get -qqy install python))"
+ - name: Gathering facts
+   setup:
+
+###
+ tasks:
+###
+  - name: Create required directories
+    file:
+      path: "{{ item }}"
+      state: directory
+      mode: 0600
+    with_items:
+      - /var/opt/BESClient
+      - /tmp/tem.install
+      - /etc/opt/BESClient
+###
+  - name: Copy CentOS/RHEL installable
+    copy:
+     src: "Packages/BESAgent-9.5.10.79-rhe6.x86_64.rpm"
+     dest: "/tmp/tem.install/BESAgent-9.5.10.79-rhe6.x86_64.rpm"
+     owner: root
+     mode: 0644
+    when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
+###
+  - name: Copy Ubuntu/Debian installable
+    copy:
+     src: "Packages/BESAgent-9.5.10.79-ubuntu10.amd64.deb"
+     dest: "/tmp/tem.install/BESAgent-9.5.10.79-ubuntu10.amd64.deb"
+     owner: root
+     mode: 0644
+    when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+###
+  - name: Install BESClient for RHEL or CentOS
+    yum:
+      name: "/tmp/tem.install/BESAgent-9.5.10.79-rhe6.x86_64.rpm"
+      state: present
+    when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
+###
+  - name: Install BESClient for Ubuntu
+    apt:
+      deb: "/tmp/tem.install/BESAgent-9.5.10.79-ubuntu10.amd64.deb"
+      state: present
+    when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+###
+  - name: Copy Configuration files
+    copy:
+      src: "configfiles/{{ item.src }}"
+      dest: "{{ item.dst }}"
+      owner: root
+      mode: 0600
+    with_items :
+      - {src: 'besclient.config', dst: '/var/opt/BESClient/besclient.config'}
+      - {src: 'actionsite.afxm', dst: '/etc/opt/BESClient/actionsite.afxm'}
+###
+  - name: Start and Enable Service Bigfix BESAgent
+    service:
+      name: besclient
+      enabled: yes
+      state: started
+###

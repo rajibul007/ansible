@@ -1,0 +1,93 @@
+-
+  hosts: all
+  remote_user: isadmin
+  sudo: yes
+  gather_facts: yes
+
+  pre_tasks:
+  - name: Install wget package for CentOS / RedHat
+    yum:
+      name: 'wget'
+      state: present
+    when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
+    tags:
+      - packages_cr
+  - name: Install wget package for debian
+    apt:
+      name: 'wget'
+      state: present
+    when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+    tags:
+      - packages_deb
+### End of wget install section ###
+
+## Play book for creating cobalt directory
+  - name: Create a cobalt directory
+    file:
+      path: /opt/IBM/cobalt
+      state: directory
+      mode: 0755
+## End of Play book for creating cobalt directory
+
+### User Creation ###
+  - name: Create automate ID
+    user:
+      name: automate
+      home: /home/automate
+      comment: "Automate ID"
+      state: present
+      append: yes
+      group: automate
+      expires: -1
+  - name: Changing automate group
+    shell: |
+      usermod automate -G automate
+      exit 0
+      args:
+        executable: /bin/bash
+### End User Creation ###
+
+### Creating user directory section ###
+  - name: Creating ssh directory for user automate
+    file:
+      path: /home/automate/.ssh
+      state: directory
+      owner: automate
+      group: automate
+      mode: 0750
+### End of user directory creation section ###
+
+### Creating authorized keys ###
+  - name: Transferring authorized key to remote server
+    copy:
+      src: "packages/authorized_keys"
+      dest: "/home/automate/.ssh/"
+      owner: automate
+      group: automate
+      mode: 0600
+### End of Creating authorized keys ###
+
+### Copying command logger script  ###
+  - name: Copying 'command logger' script to endpoints
+    copy:
+      src: "packages/sshd_cmd_logger"
+      dest: "/home/automate/.ssh/"
+      owner: automate
+      group: automate
+      mode: 0750
+### End of Copying command logger ###
+
+### Creating directory for log history ###
+  - name: Creating 'hist' directory for logs
+    file:
+      path: /var/log/hist
+      state: directory
+      owner: automate
+      group: automate
+      mode: 1777
+### End of creating log directory ###
+  - name: Adding automate user in sudoers file
+    lineinfile:
+     path: /etc/sudoers
+     line: '%automate        ALL=(ALL)       NOPASSWD: ALL'
+     insertbefore: EOF

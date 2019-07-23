@@ -1,0 +1,192 @@
+var data = {
+    "custom_stats": {}, 
+    "plays": [
+        {
+            "play": {
+                "duration": {
+                    "end": "2019-02-25T10:08:05.966684Z", 
+                    "start": "2019-02-25T10:08:04.885286Z"
+                }, 
+                "id": "0050568d-63ec-2392-8535-000000000006", 
+                "name": "all"
+            }, 
+            "tasks": [
+                {
+                    "hosts": {
+                        "chefdev301.innovate.ibm.com": {
+                            "_ansible_no_log": false, 
+                            "_ansible_parsed": true, 
+                            "action": "command", 
+                            "changed": false, 
+                            "cmd": [
+                                "useradd", 
+                                "reshma.prathap", 
+                                "-c", 
+                                "744/I/083054//Reshma.Prathap/resprath@in.ibm.com", 
+                                "-g", 
+                                "ibmadmin"
+                            ], 
+                            "delta": "0:00:00.007054", 
+                            "end": "2019-02-25 05:08:05.814398", 
+                            "failed": true, 
+                            "invocation": {
+                                "module_args": {
+                                    "_raw_params": "useradd reshma.prathap -c 744/I/083054//Reshma.Prathap/resprath@in.ibm.com -g ibmadmin", 
+                                    "_uses_shell": false, 
+                                    "argv": null, 
+                                    "chdir": null, 
+                                    "creates": null, 
+                                    "executable": null, 
+                                    "removes": null, 
+                                    "stdin": null, 
+                                    "warn": true
+                                }
+                            }, 
+                            "msg": "non-zero return code", 
+                            "rc": 9, 
+                            "start": "2019-02-25 05:08:05.807344", 
+                            "stderr": "useradd: user 'reshma.prathap' already exists", 
+                            "stderr_lines": [
+                                "useradd: user 'reshma.prathap' already exists"
+                            ], 
+                            "stdout": "", 
+                            "stdout_lines": []
+                        }
+                    }, 
+                    "task": {
+                        "duration": {
+                            "end": "2019-02-25T10:08:05.883862Z", 
+                            "start": "2019-02-25T10:08:04.905071Z"
+                        }, 
+                        "id": "0050568d-63ec-2392-8535-000000000008", 
+                        "name": "add gecos"
+                    }
+                }, 
+                {
+                    "hosts": {
+                        "chefdev301.innovate.ibm.com": {
+                            "_ansible_no_log": false, 
+                            "_ansible_verbose_always": true, 
+                            "action": "debug", 
+                            "changed": false, 
+                            "msg": ""
+                        }
+                    }, 
+                    "task": {
+                        "duration": {
+                            "end": "2019-02-25T10:08:05.966684Z", 
+                            "start": "2019-02-25T10:08:05.895991Z"
+                        }, 
+                        "id": "0050568d-63ec-2392-8535-000000000009", 
+                        "name": "debug"
+                    }
+                }
+            ]
+        }
+    ], 
+    "stats": {
+        "chefdev301.innovate.ibm.com": {
+            "changed": 0, 
+            "failures": 0, 
+            "ok": 2, 
+            "skipped": 0, 
+            "unreachable": 0
+        }
+    }
+}
+{
+    "custom_stats": {}, 
+    "plays": [
+        {
+            "play": {
+                "duration": {
+                    "end": "2019-02-25T10:24:42.226797Z", 
+                    "start": "2019-02-25T10:24:41.151497Z"
+                }, 
+                "id": "0050568d-63ec-d32a-207f-000000000006", 
+                "name": "all"
+            }, 
+            "tasks": [
+                {
+                    "hosts": {
+                        "chefdev301.innovate.ibm.com": {
+                            "_ansible_no_log": false, 
+                            "_ansible_parsed": true, 
+                            "action": "command", 
+                            "changed": false, 
+                            "cmd": [
+                                "useradd", 
+                                "reshma.prathap", 
+                                "-c", 
+                                "744/I/083054//Reshma.Prathap/resprath@in.ibm.com", 
+                                "-g", 
+                                "ibmadmin"
+                            ], 
+                            "delta": "0:00:00.007127", 
+                            "end": "2019-02-25 05:24:42.076771", 
+                            "failed": true, 
+                            "invocation": {
+                                "module_args": {
+                                    "_raw_params": "useradd reshma.prathap -c 744/I/083054//Reshma.Prathap/resprath@in.ibm.com -g ibmadmin", 
+                                    "_uses_shell": false, 
+                                    "argv": null, 
+                                    "chdir": null, 
+                                    "creates": null, 
+                                    "executable": null, 
+                                    "removes": null, 
+                                    "stdin": null, 
+                                    "warn": true
+                                }
+                            }, 
+                            "msg": "non-zero return code", 
+                            "rc": 9, 
+                            "start": "2019-02-25 05:24:42.069644", 
+                            "stderr": "useradd: user 'reshma.prathap' already exists", 
+                            "stderr_lines": [
+                                "useradd: user 'reshma.prathap' already exists"
+                            ], 
+                            "stdout": "", 
+                            "stdout_lines": []
+                        }
+                    }, 
+                    "task": {
+                        "duration": {
+                            "end": "2019-02-25T10:24:42.145846Z", 
+                            "start": "2019-02-25T10:24:41.171609Z"
+                        }, 
+                        "id": "0050568d-63ec-d32a-207f-000000000008", 
+                        "name": "add gecos"
+                    }
+                }, 
+                {
+                    "hosts": {
+                        "chefdev301.innovate.ibm.com": {
+                            "_ansible_no_log": false, 
+                            "_ansible_verbose_always": true, 
+                            "action": "debug", 
+                            "changed": false, 
+                            "msg": ""
+                        }
+                    }, 
+                    "task": {
+                        "duration": {
+                            "end": "2019-02-25T10:24:42.226797Z", 
+                            "start": "2019-02-25T10:24:42.157826Z"
+                        }, 
+                        "id": "0050568d-63ec-d32a-207f-000000000009", 
+                        "name": "debug"
+                    }
+                }
+            ]
+        }
+    ], 
+    "stats": {
+        "chefdev301.innovate.ibm.com": {
+            "changed": 0, 
+            "failures": 0, 
+            "ok": 2, 
+            "skipped": 0, 
+            "unreachable": 0
+        }
+    }
+}

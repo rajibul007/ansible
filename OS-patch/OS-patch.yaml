@@ -1,0 +1,72 @@
+- hosts: all
+  remote_user: isadmin
+  become: yes
+  become_method: sudo
+  tasks:
+  
+   - name: Build repo
+     shell: |  
+      /usr/bin/curl --silent --output /etc/yum.repos.d/netengtools.repo https://bzrepo01.innovate.ibm.com/yum/netengtools/yum/bzrepo01/netengtools_centos.repo;
+      chown root:root /etc/yum.repos.d/netengtools.repo
+      chmod 0644 /etc/yum.repos.d/netengtools.repo
+      
+   - name: Upgrade CentOS 7 repo
+     shell: |  
+      /usr/bin/curl --silent --output /etc/yum.repos.d/CentOS-Base.repo https://bzrepo01.innovate.ibm.com/yum/centos/yum/bzrepo01/CentOS7-Base.repo;
+      chown root:root /etc/yum.repos.d/CentOS-Base.repo
+      chmod 0644 /etc/yum.repos.d/CentOS-Base.repo
+      
+   - name: Repo Cleanup
+     shell: |
+       yum clean all
+       yum repolist
+      
+   - name: Install new lssecfixes
+     yum:
+       name: lssecfixes
+       state: latest 
+
+   - name: Configure lssecfixes
+     shell: |
+      /etc/secfixdb_download.sh CentOS7 
+  
+   - name: Uninstall old Tonic
+     yum:
+      name: Tonic
+      state: absent
+
+   - name: Disable innovsys.repo
+     file:
+      state: absent
+      path: /etc/yum.repos.d/innovsys.repo
+
+   - name: Install latest Tonic
+     yum:
+      name: tonic
+      state: latest
+      
+   - name: update the system
+     yum:
+      name: "*"
+      state: latest
+      
+   - name: restart system to reboot to newest kernel
+     shell: "sleep 5 && reboot"
+     async: 1
+     poll: 0
+
+   - name: wait for 10 seconds
+     pause:
+      seconds: 10
+     
+   - name: wait for the system to reboot
+     wait_for_connection:
+      connect_timeout: 20
+      sleep: 5
+      delay: 5
+      timeout: 120
+
+   - name: import Bigfix
+     include: BESinclude.yaml
+     tags: bigfix
+

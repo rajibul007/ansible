@@ -1,0 +1,16 @@
+-
+  hosts: all
+  remote_user: isadmin
+  sudo: yes
+  gather_facts: yes
+
+  tasks:
+  - name: final check
+    shell: |
+      cat test.txt | grep -i exist > /dev/null
+      if [[ $? == 0 ]]
+      then
+      echo "These Nodes are ready for onboarding"
+      else
+      echo "Check CC configuration"
+      fi

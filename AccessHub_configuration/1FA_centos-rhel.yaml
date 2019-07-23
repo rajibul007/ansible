@@ -1,0 +1,109 @@
+###
+  - name: Copy 1FA packages & configs to server
+    copy:
+      src: 1FA_packages
+      dest: /tmp/
+    tags: 1FA, 2FA
+###
+  - name: Install 1FA packages
+    shell: |
+      /bin/rpm -i {{ item }} --nodeps
+      exit 0
+    with_items:
+      - idsldap-clt64bit64-6.4.0-0.x86_64.rpm
+      - gskcrypt64-8.0.14.26.linux.x86_64.rpm
+      - gskssl64-8.0.14.26.linux.x86_64.rpm
+      - idsldap-cltbase64-6.4.0-0.x86_64.rpm
+    args:
+      executable: /bin/bash
+      chdir: /tmp/1FA_packages
+    tags: 1FA, 2FA
+###
+  - name: Configure LDAP Client library in server load path
+    lineinfile:
+      path: /etc/ld.so.conf
+      line: '/opt/ibm/ldap/V6.4/lib64'
+      insertafter: EOF
+      backup: yes
+    tags: 1FA, 2FA
+###
+  - name: Dynamically load libraries
+    shell: /sbin/ldconfig
+    tags: 1FA, 2FA
+###
+  - name: Copy pam_1fa.so
+    copy:
+      src: /tmp/1FA_packages/pam_1fa.so
+      dest: /lib64/security/pam_1fa.so
+      remote_src: yes
+      mode: 0755
+    tags: 1FA, 2FA
+###
+  - name: Enable ChallengeResponseAuthentication
+    lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: '^ChallengeResponseAuthentication'
+      line: 'ChallengeResponseAuthentication yes'
+      backup: yes
+    tags: 1FA
+###
+  - name: Restart sshd Service
+    service:
+      name: sshd
+      state: restarted
+      enabled: true
+    tags: 1FA
+###
+  - name: Configure /etc/pam.d/sshd
+    lineinfile:
+      path: /etc/pam.d/sshd
+      insertafter: '^#%PAM'
+      line: 'auth    sufficient   pam_1fa.so'
+      backup: yes
+    tags: 1FA, 2FA
+###
+  - name: Configure /etc/pam.d/sudo
+    lineinfile:
+      path: /etc/pam.d/sudo
+      insertafter: '^#%PAM'
+      line: 'auth	   sufficient	pam_1fa.so'
+      backup: yes
+    tags: 1FA, 2FA
+###
+  - name: Copy pam_1fa.conf
+    copy:
+      src: /tmp/1FA_packages/pam_1fa.conf
+      dest: /etc/security/pam_1fa.conf
+      remote_src: yes
+      mode: 0755
+    tags: 1FA, 2FA
+###
+  - name: Copy existing ED certificate
+    copy:
+      src: /opt/ibm/ldap/V6.4/etc/{{ item.src }}
+      dest: /opt/ibm/ldap/V6.4/etc/{{ item.dst }}
+      remote_src: yes
+      force: yes
+      mode: 0644
+    with_items:
+      - {src: 'ldapkey.kdb', dst: 'ldapkey.kdb.orig'}
+      - {src: 'ldapkey.sth', dst: 'ldapkey.sth.orig'}
+    tags: 1FA, 2FA
+###
+  - name: Upgrade ED certificate
+    copy:
+      src: /tmp/1FA_packages/{{ item.src }}
+      dest: /opt/ibm/ldap/V6.4/etc/{{ item.dst }}
+      remote_src: yes
+      force: yes
+      mode: 0644
+    with_items:
+      - {src: 'ldapkey.kdb', dst: 'ldapkey.kdb'}
+      - {src: 'ldapkey.sth', dst: 'ldapkey.sth'}
+    tags: 1FA, 2FA
+###
+  - name: Disable "Selinux"
+    selinux:
+      state: disabled
+    tags: 1FA, 2FA
+###

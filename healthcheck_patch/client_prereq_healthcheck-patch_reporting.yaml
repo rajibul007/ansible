@@ -1,0 +1,145 @@
+-
+  hosts: all
+  remote_user: isadmin
+  become_method: sudo
+  become_user: root
+  gather_facts: no
+###
+  pre_tasks:
+  - name: Install python
+    raw: bash -c "test -e /usr/bin/python || (yum -y install python || (apt-get -qqy update && apt-get -qqy install python))"
+###
+  - name: Gathering facts
+    setup:
+###
+  tasks:
+###
+  - name: Creating non-expiry user anton
+    user:
+      name: anton
+      comment: automation user
+      state: present
+      expires: -1
+      append: yes
+###
+  - name: Configuring non-expiry password for anton
+    shell: chage -I -1 -m 0 -M 99999 -E -1 anton
+###
+  - name: Enable anton to run all commands without a password On CentOS 7 / RHEL 7
+    lineinfile:
+      path: /etc/sudoers
+      state: present
+      line: '%anton        ALL=(ALL)       NOPASSWD: ALL'
+      validate: visudo -cf %s
+      backup: yes
+    when: (ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat') and ansible_distribution_major_version == '7'
+###
+  - name: Enable anton to run all commands without a password On CentOS 6 / RHEL 6
+    lineinfile:
+      path: /etc/sudoers
+      state: present
+      line: '%anton        ALL=(ALL)       NOPASSWD: ALL'
+      backup: yes
+    when: (ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat') and ansible_distribution_major_version == '6'
+###
+  - name: Enable anton to run all commands without a password on Ubuntu
+    lineinfile:
+      path: /etc/sudoers
+      state: present
+      line: '%anton        ALL=(ALL)       NOPASSWD: ALL'
+      validate: visudo -cf %s
+      backup: yes
+    when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian'
+###
+  - name: Adding authorized_key for anton
+    authorized_key:
+      user: anton
+      state: present
+      key: "{{ lookup('file', 'pre-reqs/anton.pub') }}"
+###
+  - name: Adding Repository for CentOS 6 and 7
+    get_url:
+      url: https://bzrepo01.innovate.ibm.com/yum/netengtools/yum/bzrepo01/netengtools_centos.repo
+      dest: /etc/yum.repos.d/netengtools.repo
+      mode: 0644
+      owner: root
+    when: ansible_distribution == 'CentOS'
+###
+  - name: Adding Repository for RedHat 6 and 7
+    get_url:
+      url: https://bzrepo01.innovate.ibm.com/yum/netengtools/yum/bzrepo01/netengtools_redhat.repo
+      dest: /etc/yum.repos.d/netengtools.repo
+      mode: 0644
+      owner: root
+    when: ansible_distribution == 'RedHat'
+###
+  - name: Adding Repository for Ubuntu 16 and 18
+    shell: |
+          cat << EOF > /etc/apt/sources.list.d/bzrepo01_netengtools.list
+          deb https://bzrepo01.innovate.ibm.com/deb/netengtools/ ./
+    args:
+      executable: /bin/bash
+    when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+###
+  - name: Uninstall old lssecfixes & Tonic package from Ubuntu.
+    apt:
+      name: ['innovsys-lssecfixes', 'Tonic']
+      state: absent
+    when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+###
+  - name: Installing lssecfixes & Tonic for ubuntu
+    apt:
+      name: ['neteng-lssecfixes', 'tonic']
+      state: present
+      update_cache: yes
+    when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+###
+  - name: Uninstall old lssecfixes & Tonic package from CentOS or RHEL.
+    yum:
+      name: ['innovsys-lssecfixes', 'Tonic']
+      state: absent
+    when: ansible_distribution == 'CentOS' or ansible_distribution == 'RHEL'
+###
+  - name: Installing lssecfixes & Tonic on CentOS or RHEL
+    yum:
+      name: ['lssecfixes', 'tonic']
+      state: present
+      update_cache: yes
+    when: ansible_distribution == 'CentOS' or ansible_distribution == 'RHEL'
+###
+  - name: Fetch lssecfixes database for CentOS 6
+    shell: /etc/secfixdb_download.sh CentOS6
+    args:
+      executable: /bin/bash
+    when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6'
+###
+  - name: Fetch lssecfixes database for CentOS 7
+    shell: /etc/secfixdb_download.sh CentOS7
+    args:
+      executable: /bin/bash
+    when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+###
+  - name: Fetch lssecfixes database for RedHat 6
+    shell: /etc/secfixdb_download.sh RedHat6Server
+    args:
+      executable: /bin/bash
+    when: ansible_distribution == 'RedHat' and ansible_distribution_major_version == '6'
+###
+  - name: Fetch lssecfixes database for RedHat 7
+    shell: /etc/secfixdb_download.sh RedHat7Server
+    args:
+      executable: /bin/bash
+    when: ansible_distribution == 'RedHat' and ansible_distribution_major_version == '7'
+###
+  - name: Fetch lssecfixes database for Ubuntu 16.04
+    shell: /etc/secfixdb_download.sh Ubuntu16.04
+    args:
+      executable: /bin/bash
+    when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu' and ansible_distribution_version == '16.04'
+###
+  - name: Fetch lssecfixes database for Ubuntu 18.04
+    shell: /etc/secfixdb_download.sh Ubuntu18.04
+    args:
+      executable: /bin/bash
+    when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu' and ansible_distribution_version == '18.04'
+###

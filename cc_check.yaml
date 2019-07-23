@@ -1,0 +1,14 @@
+-
+  hosts: all
+  remote_user: isadmin
+  sudo: yes
+  gather_facts: yes
+  tasks:
+  - name: key file checking
+    stat:
+     path: /home/automate/.ssh/authorized_keys
+    register: result
+ 
+  - debug:
+     msg: "file exists"
+    when: result.stat.exists

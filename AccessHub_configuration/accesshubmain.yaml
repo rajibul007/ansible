@@ -1,0 +1,35 @@
+-
+  hosts: all
+  remote_user: ccpadmin
+  sudo: yes
+###
+###
+###
+  tasks:
+###
+  - name: RHEL/Centos - Create user accesshubid
+    include: accesshubid_centos-rhel.yaml
+    when: |
+      ansible_distribution == 'CentOS' and ansible_distribution_major_version|int == 6 and ansible_architecture == 'x86_64' or
+      ansible_distribution == 'RedHat' and ansible_distribution_major_version|int == 6 and ansible_architecture == 'x86_64' or
+      ansible_distribution == 'CentOS' and ansible_distribution_major_version|int == 7 and ansible_architecture == 'x86_64' or
+      ansible_distribution == 'RedHat' and ansible_distribution_major_version|int == 7 and ansible_architecture == 'x86_64'
+    tags: accesshubid
+###
+  - name: RHEL/Centos - Install & Configure 1FA
+    include: 1FA_centos-rhel.yaml
+    when: |
+      ansible_distribution == 'CentOS' and ansible_distribution_major_version|int == 6 and ansible_architecture == 'x86_64' or
+      ansible_distribution == 'RedHat' and ansible_distribution_major_version|int == 6 and ansible_architecture == 'x86_64' or
+      ansible_distribution == 'CentOS' and ansible_distribution_major_version|int == 7 and ansible_architecture == 'x86_64' or
+      ansible_distribution == 'RedHat' and ansible_distribution_major_version|int == 7 and ansible_architecture == 'x86_64'
+    tags: 1FA
+###
+  - name: RHEL/Centos - Install & Configure 2FA
+    include: 2FA_centos-rhel.yaml
+    when: |
+      ansible_distribution == 'CentOS' and ansible_distribution_major_version|int == 6 and ansible_architecture == 'x86_64' or
+      ansible_distribution == 'RedHat' and ansible_distribution_major_version|int == 6 and ansible_architecture == 'x86_64' or
+      ansible_distribution == 'CentOS' and ansible_distribution_major_version|int == 7 and ansible_architecture == 'x86_64' or
+      ansible_distribution == 'RedHat' and ansible_distribution_major_version|int == 7 and ansible_architecture == 'x86_64'
+    tags: 2FAA

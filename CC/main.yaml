@@ -1,0 +1,22 @@
+-
+  hosts: all
+  remote_user: isadmin
+  sudo: yes
+  gather_facts: yes
+
+
+  tasks:
+    - name: Create a cobalt directory for openstack environment.
+      when: ansible_virtualization_type == 'openstack'
+      include: mos.yaml
+      tags: mos
+
+    - name: Create a cobalt directory for PPC environment.
+      when: ansible_machine == 'ppc64'
+      include: ppc.yaml
+      tags: ppc
+
+    - name: Create a cobalt directory for vmware environment.
+      when: ansible_machine == 'vmware'
+      include: vmware.yaml
+      tags: vmware

@@ -1,0 +1,14 @@
+-
+  hosts: all
+  remote_user: isadmin
+  become_method: sudo
+  become_user: root
+  gather_facts: no
+  tasks: 
+  - name: Add authorized_keys for accesshubid
+    copy:
+      src: /etc/ansible/authorized_keys_new
+      dest: /home/accesshubid/.ssh/authorized_keys
+      owner: accesshubid
+      group: accesshubid
+      mode: 0600

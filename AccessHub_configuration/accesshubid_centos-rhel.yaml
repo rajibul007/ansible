@@ -1,0 +1,54 @@
+###
+  - name: Create user 'accesshubid'
+    user:
+      name: accesshubid
+      home: /home/accesshubid
+      comment: "AccessHUB Service Account"
+      state: present
+    tags: accesshubid
+###
+  - name: Allow 'accesshubid' user to have sudo access
+    blockinfile:
+      path: /etc/sudoers
+      backup: yes
+      block: |
+        ## Admin groups for support
+        %ibmadmin ALL=(ALL) ALL
+        %dpe ALL=(ALL) ALL
+        %innovsys_admin ALL=(ALL) ALL
+
+        ## ACCESSHUB Service Account
+        %accesshubid	ALL=(ALL)	NOPASSWD: ACCESSHUBID
+        Cmnd_Alias ACCESSHUBID = /bin/cat, /bin/chmod, /bin/cp, /bin/kill, /bin/ls, /usr/bin/chage, /bin/ed, /usr/bin/ed, /usr/bin/faillog, /usr/bin/groups, /usr/bin/passwd, /usr/bin/tee, /usr/sbin/groupadd, /usr/sbin/groupdel, /usr/sbin/groupmod, /usr/sbin/useradd, /usr/sbin/userdel, /usr/sbin/usermod, /bin/gpasswd
+      validate: visudo -cf %s
+    tags: accesshubid
+###
+  - name: Create .ssh directory for accesshubid
+    file:
+      path: /home/accesshubid/.ssh
+      state: directory
+      owner: accesshubid
+      group: accesshubid
+      mode: 0700
+    tags: accesshubid
+###
+  - name: Add authorized_keys for accesshubid
+    copy:
+      src: authorized_keys
+      dest: /home/accesshubid/.ssh/authorized_keys
+      owner: accesshubid
+      group: accesshubid
+      mode: 0600
+    tags: accesshubid
+###
+  - name: Enable key based authentication
+    lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: '^PubkeyAuthentication'
+      line: 'PubkeyAuthentication yes'
+      owner: root
+      group: root
+      mode: 0600
+      backup: yes
+    tags: accesshubid
+###

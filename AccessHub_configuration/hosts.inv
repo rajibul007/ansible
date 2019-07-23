@@ -1,0 +1,3 @@
+
+[local]
+nagdev.innovate.ibm.com ansible_user=isadmin

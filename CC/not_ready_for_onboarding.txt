@@ -1,0 +1,4 @@
+    "result.stdout": "File /home/automate/.ssh/authorized_keys  not present in chefdev301.innovate.ibm.com"
+    "result.stdout": "File /home/automate/.ssh/sshd_cmd_logger not present in chefdev301.innovate.ibm.com"
+    "result.stdout": "File /home/automate/.ssh/authorized_keys  not present in chefdev301.innovate.ibm.com"
+    "result.stdout": "File /home/automate/.ssh/sshd_cmd_logger not present in chefdev301.innovate.ibm.com"

@@ -1,0 +1,27 @@
+- hosts: all
+  remote_user: isadmin
+  become: yes
+  become_method: sudo
+  tasks:
+  
+   - name: Configure BZREPO01 REDHAT YUM repository RHEL7
+     shell: |  
+      /usr/bin/curl --silent --output /etc/yum.repos.d/rhel7-Base.repo https://bzrepo01.innovate.ibm.com/yum/redhat/yum/bzrepo01/rhel7-Base.repo
+      chown root:root /etc/yum.repos.d/rhel7-Base.repo
+      chmod 0644 /etc/yum.repos.d/rhel7-Base.repo
+      /usr/bin/yum clean all
+      /usr/bin/yum repolist
+
+   - name: Configure Network Engineering Tools Repository
+     shell: |  
+      /usr/bin/curl --silent --output /etc/yum.repos.d/netengtools.repo https://bzrepo01.innovate.ibm.com/yum/netengtools/yum/bzrepo01/netengtools_redhat.repo
+      chown root:root /etc/yum.repos.d/netengtools.repo
+      chmod 0644 /etc/yum.repos.d/netengtools.repo
+      /usr/bin/yum clean all
+      /usr/bin/yum repolist
+    
+   - name: Run Tools First Time
+     shell: |
+       /usr/bin/yum install lssecfixes
+       /etc/secfixdb_download.sh RedHat7Server
+       /bin/lssecfixes

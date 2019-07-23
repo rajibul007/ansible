@@ -1,0 +1,20 @@
+[duo]
+; Duo integration key
+ikey =
+; Duo secret key
+skey =
+; Duo API host
+host =
+; `failmode = safe` In the event of errors with this configuration file or connection to the Duo service
+; this mode will allow login without 2FA.
+; `failmode = secure` This mode will deny access in the above cases. Misconfigurations with this setting
+; enabled may result in you being locked out of your system.
+failmode = safe
+; Send command for Duo Push authentication
+;pushinfo = yes
+; whitelisting of user IDs which need no 2FA challenge, * requires all groups and users to be challenged, then add !whitelist to exclude users in the whitelist group
+group = *,!root,!isadmin
+; W3 id is position in gecos field.
+gecos_username_pos=6
+; Deliminator used in gecos field.
+gecos_delim=/

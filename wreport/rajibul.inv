@@ -1,0 +1,50 @@
+[nagios]
+nagmonm101.innovate.ibm.com	ansible_ssh_pass=fine4now@fine4now	ansible_sudo_pass=fine4now@fine4now	ansible_user=isadmin
+nagmonm102.innovate.ibm.com	ansible_ssh_pass=fine4now@fine4now	ansible_sudo_pass=fine4now@fine4now	ansible_user=isadmin
+nagmonw101.innovate.ibm.com	ansible_ssh_pass=fine4now@fine4now	ansible_sudo_pass=fine4now@fine4now	ansible_user=isadmin
+nagmonw102.innovate.ibm.com     ansible_ssh_pass=fine4now@fine4now	ansible_sudo_pass=fine4now@fine4now	ansible_user=isadmin
+nagmonw103.innovate.ibm.com     ansible_ssh_pass=fine4now@fine4now        ansible_sudo_pass=fine4now@fine4now	ansible_user=isadmin
+nagmonm201.innovate.ibm.com     ansible_ssh_pass=fine4now@fine4now	ansible_sudo_pass=fine4now@fine4now	ansible_user=isadmin
+nagmonm202.innovate.ibm.com     ansible_ssh_pass=fine4now@fine4now	ansible_sudo_pass=fine4now@fine4now	ansible_user=isadmin
+nagmonw201.innovate.ibm.com     ansible_ssh_pass=fine4now@fine4now	ansible_sudo_pass=fine4now@fine4now	ansible_user=isadmin
+nagmonw202.innovate.ibm.com     ansible_ssh_pass=fine4now@fine4now	ansible_sudo_pass=fine4now@fine4now	ansible_user=isadmin
+
+[gm]
+gmcent6.innovate.ibm.com		ansible_ssh_pass=fine4now@fine4now		ansible_sudo_pass=fine4now@fine4now      	ansible_user=isadmin
+gmcent7.innovate.ibm.com		ansible_ssh_pass=fine4now@fine4now		ansible_sudo_pass=fine4now@fine4now      	ansible_user=isadmin
+gmrhel6.innovate.ibm.com		ansible_ssh_pass=fine4now@fine4now       	ansible_sudo_pass=fine4now@fine4now      	ansible_user=isadmin
+gmrhel7.innovate.ibm.com		ansible_ssh_pass=fine4now@fine4now       	ansible_sudo_pass=fine4now@fine4now	ansible_user=isadmin
+gmubun16.adtech.internet.ibm.com	ansible_ssh_pass=fine4now@fine4now	ansible_sudo_pass=fine4now@fine4now	ansible_user=isadmin
+gmubun18.adtech.internet.ibm.com	ansible_ssh_pass=fine4now@fine4now	ansible_sudo_pass=fine4now@fine4now	ansible_user=isadmin
+
+[test]
+#chef-automate.innovate.ibm.com ansible_ssh_pass=fine4now@fine4now      	ansible_sudo_pass=fine4now@fine4now	ansible_user=isadmin
+chefdev301.innovate.ibm.com	ansible_ssh_pass=fine4now@fine4now      	ansible_sudo_pass=fine4now@fine4now      ansible_user=isadmin
+dpev399.innovate.ibm.com     	ansible_ssh_pass=fine4now@fine4now	ansible_sudo_pass=fine4now@fine4now      ansible_user=isadmin
+dpev554.innovate.ibm.com     	ansible_ssh_pass=fine4now@fine4now	ansible_sudo_pass=fine4now@fine4now	ansible_user=isadmin
+dpev027.innovate.ibm.com     	ansible_ssh_pass=fine4now@fine4now	ansible_sudo_pass=fine4now@fine4now      ansible_user=isadmin
+dpev824.innovate.ibm.com     	ansible_ssh_pass=fine4now@fine4now	ansible_sudo_pass=fine4now@fine4now	ansible_user=isadmin
+nagdev.innovate.ibm.com     	ansible_ssh_pass=fine4now@fine4now	ansible_sudo_pass=fine4now@fine4now	ansible_user=isadmin
+sgstep101.innovate.ibm.com      ansible_ssh_pass=fine4now@fine4now        ansible_sudo_pass=fine4now@fine4now       ansible_user=isadmin
+[k8]
+k8master.innovate.ibm.com	ansible_ssh_pass=fine4now@fine4now	ansible_sudo_pass=fine4now@fine4now	ansible_user=isadmin
+dpev010.innovate.ibm.com     	ansible_ssh_pass=fine4now@fine4now      	ansible_sudo_pass=fine4now@fine4now      	ansible_user=isadmin
+dpev008.innovate.ibm.com     	ansible_ssh_pass=fine4now@fine4now      	ansible_sudo_pass=fine4now@fine4now	ansible_user=isadmin
+
+[my]
+dpev008.innovate.ibm.com	ansible_ssh_pass=fine4now@fine4now	ansible_sudo_pass=fine4now@fine4now      ansible_user=isadmin
+k8master.innovate.ibm.com	ansible_ssh_pass=fine4now@fine4now	ansible_sudo_pass=fine4now@fine4now      ansible_user=isadmin
+dpev010.innovate.ibm.com	ansible_ssh_pass=fine4now@fine4now	ansible_sudo_pass=fine4now@fine4now      ansible_user=isadmin
+shobhitcentos.innovate.ibm.com	ansible_ssh_pass=fine4now@fine4now	ansible_sudo_pass=fine4now@fine4now      ansible_user=isadmin
+dpev007.innovate.ibm.com	ansible_ssh_pass=fine4now@fine4now	ansible_sudo_pass=fine4now@fine4now      ansible_user=isadmin
+nagmonm201.innovate.ibm.com     ansible_ssh_pass=fine4now@fine4now	ansible_sudo_pass=fine4now@fine4now      ansible_user=isadmin
+nagmonm202.innovate.ibm.com     ansible_ssh_pass=fine4now@fine4now	ansible_sudo_pass=fine4now@fine4now      ansible_user=isadmin
+nagmonw201.innovate.ibm.com     ansible_ssh_pass=fine4now@fine4now	ansible_sudo_pass=fine4now@fine4now      ansible_user=isadmin
+nagmonw202.innovate.ibm.com     ansible_ssh_pass=fine4now@fine4now	ansible_sudo_pass=fine4now@fine4now      ansible_user=isadmin
+dpev213.innovate.ibm.com	ansible_ssh_pass=fine4now@fine4now	ansible_sudo_pass=fine4now@fine4now      ansible_user=isadmin
+shobhitcentos1.innovate.ibm.com     ansible_ssh_pass=fine4now@fine4now       ansible_sudo_pass=fine4now@fine4now      ansible_user=isadmin
+shobhitcentos2.innovate.ibm.com     ansible_ssh_pass=fine4now@fine4now       ansible_sudo_pass=fine4now@fine4now      ansible_user=isadmin
+nagmonw103.innovate.ibm.com     ansible_ssh_pass=fine4now@fine4now        ansible_sudo_pass=fine4now@fine4now	ansible_user=isadmin
+[try]
+#dpev554.innovate.ibm.com        ansible_ssh_pass=fine4now@fine4now   ansible_sudo_pass=fine4now@fine4now     ansible_user=isadmin
+dpev007.innovate.ibm.com        ansible_ssh_pass=fine4now@fine4now       ansible_sudo_pass=fine4now@fine4now      ansible_user=isadmin

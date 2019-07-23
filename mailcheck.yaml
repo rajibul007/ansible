@@ -1,0 +1,14 @@
+---
+- hosts: all
+  remote_user: isadmin
+  tasks:
+   - name: sending mail 
+     mail:
+       subject: BIGFIX_ALERT  System {{ ansible_hostname }} has been successfully provisioned
+       to:
+       - rajibul <rajihuda@in.ibm.com>
+       - srihita <srivemp1@in.ibm.com>
+       - reshma <reshma.prathap@in.>
+     delegate_to: localhost
+ 
+   

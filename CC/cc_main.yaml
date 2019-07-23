@@ -1,0 +1,97 @@
+-
+  hosts: all
+  remote_user: isadmin
+  sudo: yes
+  gather_facts: yes
+
+  pre_tasks:
+  - name: Install wget package for CentOS / RedHat
+    yum:
+      name: 'wget'
+      state: present
+    when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
+    tags:
+      - packages_cr
+  - name: Install wget package for debian
+    apt:
+      name: 'wget'
+      state: present
+    when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+    tags:
+      - packages_deb
+### End of wget install section ###
+
+## Play book for creating cobalt directory
+  - name: Create a cobalt directory
+    file:
+      path: /opt/IBM/cobalt
+      state: directory
+      mode: 0755
+## End of Play book for creating cobalt directory
+
+### User Creation ###
+
+###
+  - name: Creating non-expiry user automate
+    user:
+      name: automate
+      uid: 1103
+      home: /home/automate
+      comment: Continuos Complinace Service ID
+      state: present
+      force: yes
+      append: yes
+      expires: -1
+    tags: cc
+###
+  - name: Configuring non-expiry password for automate
+    shell: chage -I -1 -m 0 -M 99999 -E -1 automate
+    tags: cc
+###
+
+### End User Creation ###
+
+### Creating user directory section ###
+  - name: Creating ssh directory for user automate
+    file:
+      path: /home/automate/.ssh
+      state: directory
+      owner: automate
+      group: automate
+      mode: 0750
+### End of user directory creation section ###
+
+### Creating authorized keys ###
+  - name: Transferring authorized key to remote server
+    copy:
+      src: "packages/authorized_keys"
+      dest: "/home/automate/.ssh/"
+      owner: automate
+      group: automate
+      mode: 0600
+### End of Creating authorized keys ###
+
+### Copying command logger script  ###
+  - name: Copying 'command logger' script to endpoints
+    copy:
+      src: "packages/sshd_cmd_logger"
+      dest: "/home/automate/.ssh/"
+      owner: automate
+      group: automate
+      mode: 0750
+### End of Copying command logger ###
+
+### Creating directory for log history ###
+  - name: Creating 'hist' directory for logs
+    file:
+      path: /var/log/hist
+      state: directory
+      owner: automate
+      group: automate
+      mode: 1777
+### End of creating log directory ###
+  - name: Add anton user to the sudoers
+    copy:
+          dest: "/etc/sudoers.d/automate"
+          content: "%automate  ALL=(ALL)  NOPASSWD: ALL"
+

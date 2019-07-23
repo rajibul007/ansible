@@ -1,0 +1,57 @@
+-
+  hosts: local
+  remote_user: isadmin
+  sudo: yes
+  gather_facts: yes
+
+  tasks:
+    - name: Create Logical volume
+      lvol:
+        vg: ca
+        lv: cobalt_lv
+        size: 5G
+
+# Creating file system on CentOS6 or RHEL6 
+    - name: Creating file system on CentOS6 or RHEL6
+      filesystem:
+        fstype: ext4
+        dev: /dev/ca/cobalt_lv
+      when: ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6'
+# End of creating file system
+
+# Creating file system
+    - name: Creating file system on CentOS7 or RHEL7
+      filesystem:
+        fstype: xfs
+        dev: /dev/ca/cobalt_lv
+      when: ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+
+# End of creating file system
+
+# Creating file system on ubuntu
+    - name: Creating file system on ubuntu
+      filesystem:
+        fstype: xfs
+        dev: /dev/ca/cobalt_lv
+      when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian'
+# End of creating file system on ubuntu
+
+# Mounting file system
+    - name: mounting file system on CentOS6 or RHEL6
+      mount:
+        path: /opt/IBM/cobalt
+        src: /dev/ca/cobalt_lv
+        fstype: ext4
+        state: mounted
+      when: ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS' and ansible_distribution_major_version == '6'
+# End of creating file system
+
+# Mountin file system for CentOS7 or RHEL7 or Ubuntu
+    - name: mounting file system on CentOS7 or RHEL7 or Ubuntu
+      mount:
+        path: /opt/IBM/cobalt
+        src: /dev/ca/cobalt_lv
+        fstype: xfs
+        state: mounted
+      when: ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7' or ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian'
+# End of mounting file system on CentOS7 or RHEL7 or Ubuntu

@@ -1,0 +1,14 @@
+- 
+  hosts: all
+  remote_user: isadmin
+  sudo: yes
+  gather_facts: no
+  tasks:
+   - name: add gecos
+     command: useradd reshma.prathap -c 744/I/083054//Reshma.Prathap/resprath@in.ibm.com -g ibmadmin
+     ignore_errors: yes
+     register: result
+     changed_when: false
+   - debug:
+       msg: "{{ result | json_query('[].stdout_lines[]') }}"
+     run_once: yes

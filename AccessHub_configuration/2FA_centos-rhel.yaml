@@ -1,0 +1,98 @@
+-
+ hosts: all
+ sudo: yes
+ tasks:
+
+
+
+
+
+###
+  - name: Copy 2FA packages & configs to server
+    copy:
+      src: 2FA_packages
+      dest: /tmp/
+    tags: 2FA
+###
+  - name: Extract 2FA package
+    unarchive:
+      src: 2FA_packages/duo_unix-1.11.1.tar.gz
+      dest: /tmp/2FA_packages
+    tags: 2FA
+###
+  - name: Extract 2FA package
+    shell: tar -xvf duo_unix-1.11.1.tar.gz
+    args:
+      executable: /bin/bash
+      chdir: /tmp/2FA_packages
+    tags: 2FA
+###
+  - name: Install OpenSSL and PAM pre-requisites
+    yum:
+      name: "{{ item.name }}"
+      state: present
+    with_items:
+    - { name: 'openssl-devel' }
+    - { name: 'pam-devel' }
+    - { name: 'gcc' }
+    tags: 2FA
+###
+  - name: Install 2FA packages
+    shell: |
+      ./configure --with-pam --prefix=/usr && make && sudo make install
+      exit 0
+    args:
+      executable: /bin/bash
+      chdir: /tmp/2FA_packages/duo_unix-1.11.1
+    tags: 2FA
+###
+  - name: Copy pam_duo.conf
+    copy:
+      src: 2FA_packages/pam_duo.conf.v1.11.1
+      dest: /etc/duo/pam_duo.conf
+    tags: 2FA
+###
+  - name: Modify /etc/ssh/sshd_config
+    blockinfile:
+      path: /etc/ssh/sshd_config
+      backup: yes
+      block: |
+        PasswordAuthentication yes
+        ChallengeResponseAuthentication yes
+        UsePAM yes
+        UseDNS no
+        PermitTunnel no
+        AllowTcpForwarding no
+    tags: 2FA
+###
+  - name: Copy PAM config for 2FA CentOS/RHEL v6
+    copy:
+      src: 2FA_packages/pam_sshd.2FA-including1FAv6
+      dest: /etc/pam.d/sshd
+      backup: yes
+      owner: root
+      group: root
+    when: |
+      ansible_distribution == 'CentOS' and ansible_distribution_major_version|int == 6 and ansible_architecture == 'x86_64' or
+      ansible_distribution == 'RedHat' and ansible_distribution_major_version|int == 6 and ansible_architecture == 'x86_64'
+    tags: 2FA
+###
+  - name: Copy PAM config for 2FA CentOS/RHEL v7
+    copy:
+      src: 2FA_packages/pam_sshd.2FA-including1FAv7
+      dest: /etc/pam.d/sshd
+      backup: yes
+      owner: root
+      group: root
+    when: |
+      ansible_distribution == 'CentOS' and ansible_distribution_major_version|int == 7 and ansible_architecture == 'x86_64' or
+      ansible_distribution == 'RedHat' and ansible_distribution_major_version|int == 7 and ansible_architecture == 'x86_64'
+    tags: 2FA
+###
+  - name: Restart sshd Service
+    service:
+      name: sshd
+      state: restarted
+      enabled: true
+    tags: 2FA
+###

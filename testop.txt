@@ -1,0 +1,31 @@
+
+PLAY [all] *************************************************************************************************************************************************************************************************
+
+TASK [Add authorized_keys for accesshubid] *****************************************************************************************************************************************************************
+ok: [chefdev301.innovate.ibm.com]
+ok: [bfaiwhnn101.fringe.ibm.com]
+ok: [bfaiwhmgr101.fringe.ibm.com]
+ok: [bfaiwh101.fringe.ibm.com]
+ok: [bfaiwhnn102.fringe.ibm.com]
+ok: [bfaiwh102.fringe.ibm.com]
+ok: [bfaiwh103.fringe.ibm.com]
+ok: [bfaiwh104.fringe.ibm.com]
+ok: [bfaiwh106.fringe.ibm.com]
+ok: [bfaiwh105.fringe.ibm.com]
+ok: [bfaiwh107.fringe.ibm.com]
+ok: [bfaiwh108.fringe.ibm.com]
+
+PLAY RECAP *************************************************************************************************************************************************************************************************
+bfaiwh101.fringe.ibm.com   : ok=1    changed=0    unreachable=0    failed=0   
+bfaiwh102.fringe.ibm.com   : ok=1    changed=0    unreachable=0    failed=0   
+bfaiwh103.fringe.ibm.com   : ok=1    changed=0    unreachable=0    failed=0   
+bfaiwh104.fringe.ibm.com   : ok=1    changed=0    unreachable=0    failed=0   
+bfaiwh105.fringe.ibm.com   : ok=1    changed=0    unreachable=0    failed=0   
+bfaiwh106.fringe.ibm.com   : ok=1    changed=0    unreachable=0    failed=0   
+bfaiwh107.fringe.ibm.com   : ok=1    changed=0    unreachable=0    failed=0   
+bfaiwh108.fringe.ibm.com   : ok=1    changed=0    unreachable=0    failed=0   
+bfaiwhmgr101.fringe.ibm.com : ok=1    changed=0    unreachable=0    failed=0   
+bfaiwhnn101.fringe.ibm.com : ok=1    changed=0    unreachable=0    failed=0   
+bfaiwhnn102.fringe.ibm.com : ok=1    changed=0    unreachable=0    failed=0   
+chefdev301.innovate.ibm.com : ok=1    changed=0    unreachable=0    failed=0   
+

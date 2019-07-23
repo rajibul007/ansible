@@ -1,0 +1,9 @@
+-
+  hosts: all
+  sudo: yes
+  tasks:
+
+   - name: adding GECOS
+     user:
+        name: isadmin
+        comment: 744/I/0006ZC//Abhishek.Srivastava/absriva1@in.ibm.com

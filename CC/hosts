@@ -1,0 +1,7 @@
+#gmrhel7.innovate.ibm.com ansible_user=isadmin ansible_ssh_pass=fine4now ansible_sudo_pass=fine4now
+#ihelb201.ihe.ibm.com ansible_user=srivemp1 ansible_ssh_pass=just4now ansible_sudo_pass=just4now
+#gmrhel6.innovate.ibm.com ansible_user=isadmin ansible_ssh_pass=fine4now	ansible_sudo_pass=fine4now
+#9.45.124.23 ansible_user=isadmin ansible_ssh_pass=Prince0fthew0rld!    ansible_sudo_pass=Prince0fthew0rld!
+
+chefdev301.innovate.ibm.com ansible_user=isadmin ansible_ssh_pass=fine4now ansible_sudo_pass=fine4now
+

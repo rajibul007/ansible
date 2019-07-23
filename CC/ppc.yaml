@@ -1,0 +1,7 @@
+## Play book for creating cobalt directory
+    - name: Create a cobalt directory for ppc environment
+      file:
+        path: /opt/IBM/cobalt
+        state: directory
+        mode: 0755
+## End of Play book for creating cobalt directory

@@ -1,0 +1,9 @@
+--- #AnsibleGoldmaster
+- hosts: local
+  remote_user: rajibul
+  sudo: yes
+  tasks:
+  - name: download and install latest tonic 
+    include: tonic.yaml
+  - name: Prevent From Using Or Reuse Same Old Passwords
+    include: reuse_prevent.yaml
