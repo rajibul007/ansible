@@ -3,6 +3,19 @@
   sudo: yes
   tasks:
 
+   - name: Add the rajibul
+     user:
+        name: rajibul
+        comment: 744/I/0377f6/IBM/Rajibul Sk Huda/rajihuda@in.ibm.com
+        groups: rajibul
+        append: yes
+
+
+
+
+
+
+
    - name: Add the absiva1
      user:
         name: absriva1
