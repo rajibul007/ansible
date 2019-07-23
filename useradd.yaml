@@ -23,7 +23,7 @@
         groups: ibmadmin
         append: yes
 
-   - name: Add the absiva1
+   - name: Add the sri 
      user:
         name: srivemp1
         comment: 744/I/0003XO//Vempalli.Srihita/srivemp1@in.ibm.com
