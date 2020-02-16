@@ -1,0 +1,233 @@
+---
+# Solution originally used to set up cluster.
+# Choices are: kubespray, maglev, kubeadm
+kubernetes_solution: "kubespray"
+
+# Dictionary to override solution-specific default values
+cluster_defaults_override:
+  # api_server_specification_file:              # API server pod specification file location
+  # scheduler_specification_file:               # Scheduler pod specification file location
+  # controller_manager_specification_file:      # Controller Manager pod specification file location
+  # scheduler_kubeconfig_file:                  # kubeconfig file for the Scheduler
+  # controller_manager_kubeconfig_file:         # kubeconfig file for the Controller Manager
+  # node_kubeconfig_file:                       # kubeconfig file for the node.
+  # proxy_kubeconfig_file:                      # kubeconfig file for the kube-proxy
+  # admin_conf_file:                            # file that contains admin credentials for the cluster
+  # etcd_env_file:                              # file of environment variables for etcd. If your cluster uses a manifest/specification file instead, put that file location here.
+  # kubelet_env_file:                           # file of environment variables for kubelet. If your cluster uses a manifest/specification file instead, put that file location here.
+  # secure_port:                                # the port on which to serve HTTPS with authentication and authorization
+  # audit_log_path:                             # the desired audit log path
+  # worker_tls_cert_file:                       # woker TLS cert file
+  # worker_tls_private_key_file:                # worker TLS private key file
+  # kubelet_certificate_authority:              # kubelet certificate authority for the api server to verify
+  # kubelet_client_certificate:                 # kublet client certificate file for certificate-based authentication between the api server and kubelets
+  # kubelet_client_key:                         # kublet client key file for certificate-based authentication between the api server and kubelets
+  # service_account_key_file:                   # public key for signing service account tokens
+  # etcd_certfile:                              # etcd certifcate file for the API server to identify itself to the etcd server
+  # etcd_keyfile:                               # etcd key file for the API server to identify itself to the etcd server
+  # etcd_peer_certfile:                         # etcd peer certifcate file to make use of TLS encryption for peer connections
+  # etcd_cafile:                                # certificate authority file for TLS connection between the apiserver and etcd
+  # etcd_data_directory:                        # etcd data directory
+  # etcd_is_cluster:                            # Boolean. Set to true if you are using an etcd cluster. Set to false if you are using only one etcd server in your environment.
+  # etcd_peer_keyfile:                          # etcd peer key file to make use of TLS encryption for peer connections
+  # etcd_wal_dir:                               # path to the dedicated wal directory. If this flag is set, etcd will write the WAL files to the walDir rather than the dataDir.
+  # tls_cert_file:                              # API server TLS certificate file
+  # tls_private_key_file:                       # API server TLS private key file
+  # client_ca_file:                             # client certificate authority file for TLS connection on the apiserver
+  # service_account_private_key_file:           # service account private key file for service accounts on the controller manager
+  # root_ca_file:                               # root certificate for the API server's serving certificate to the controller manager
+  # encryption_config_file_template:            # template used to create encryption config file
+  # audit_policy_file_template:                 # template used to create audit policy file
+  # admission_control_config_file_template:     # template used to create admission configuration file
+  # event_config_file_template:                 # template used to create EventConfig file
+  # pod_security_policy_file_template:          # template used to create PodSecurityPolicy
+  # role_file_template:                         # template used to create Role file
+  # role_binding_default_file_template:         # template used to create RoleBinding file for the default namespace
+  # role_binding_kube_system_file_template:     # template used to create RoleBinding file for the kube-system namespace
+  # kubectl_user:                               # User with kubectl access on the master node.  Used to create pod security policy, cluster role, and role bindings
+  # master_pki_directory:                       # path to the PKI directory on the master node
+
+# number of days to retain the logs
+audit_log_maxage: "180"
+
+# number of old log files to keep
+audit_log_maxbackup: "10"
+
+# max log file size in MB before the audit logs are rotated
+audit_log_maxsize: "100"
+
+# connection timeout for kubelets
+# Setting idle timeouts ensures that you are protected against Denial-of-Service
+# attacks, inactive connections and running out of ephemeral ports.
+kubelet_streaming_connection_idle_timeout: "5m"
+
+# Kubelets can automatically manage the required changes to iptables based on how
+# you choose your networking options for the pods.
+# If your kubelets are managing iptables, set this to true.
+kubelet_manages_iptables: true
+
+# Set to true if your cluster lets kubelets get their certificates from
+# the API server. If your kubelet certificates come from an outside authority/tool
+# (e.g. Vault) then set this to false.
+rotate_kubelet_client_certificate: true
+
+# Similar to above, except this applies to server certificates
+rotate_kubelet_server_certificate: true
+
+# global request timeout, in seconds, for API server requests
+request_timeout: "60s"
+
+# terminated pod garbage collection threshold
+terminated_pod_gc_threshold: 10
+
+# Whether or not to create the encryption config file using encryption_config_file_template
+create_encryption_config_file: true
+
+# location of the encrytion config file. the encryption_config_file_template will
+# be copied to this location if create_encryption_config_file is set to true
+encryption_config_file_location: "/etc/kubernetes/EncryptionConfig"
+
+# whether or not to create the audit policy file using audit_policy_file_template
+create_audit_policy_file: true
+
+# location of the audit policy file. the audit_policy_file_template will be copied
+# to this location if create_audit_policy_file is set to true
+audit_policy_file_location: "/etc/kubernetes/audit-policy.yaml"
+
+# whether or not to create the admission control config file using admission_control_config_file_template
+create_admission_control_config_file: true
+
+# location of the admission control config file. the admission_control_config_file_template
+# will be copied to this location if create_admission_control_config_file is set to true
+admission_control_config_file_location: "/etc/kubernetes/AdmissionConfiguration"
+
+# whether or not to create the event config file using event_config_file_template
+create_event_config_file: true
+
+# location of the event config file. the event_config_file_template will be copied
+# to this location if create_event_config_file is set to true
+event_config_file_location: "/etc/kubernetes/eventconfig.yaml"
+
+# whether or not to create the kube-system namespace pod security policy file using pod_security_policy_kube_system_file_template
+create_pod_security_policy_kube_system_file: true
+
+# location of the kube-system namespace pod security policy file. the pod_security_policy_kube_system_file_template will be copied
+# to this location if create_pod_security_policy_kube_system_file is set to true
+pod_security_policy_kube_system_file_location: "/etc/kubernetes/pod-security-policy-kube-system.yaml"
+
+# whether or not to create the default namespace pod security policy file using pod_security_policy_default_file_template
+create_pod_security_policy_default_file: true
+
+# location of the default namespace pod security policy file. the pod_security_policy_default_file_template will be copied
+# to this location if create_pod_security_policy_default_file is set to true
+pod_security_policy_default_file_location: "/etc/kubernetes/pod-security-policy-default.yaml"
+
+# whether or not to create the kube-system namespace cluster role file using role_kube_system_file_template
+create_role_kube_system_file: true
+
+# location of the kube-system namespace role file. the role_kube_system_file_template will be copied
+# to this location if create_role_kube_system_file is set to true
+role_kube_system_file_location: "/etc/kubernetes/role-kube-system.yaml"
+
+# whether or not to create the default namespace cluster role file using role_default_file_template
+create_role_default_file: true
+
+# location of the default namespace role file. the role_default_file_template will be copied
+# to this location if create_role_default_file is set to true
+role_default_file_location: "/etc/kubernetes/role-default.yaml"
+
+# whether or not to create the role binding file for the default namespace using role_binding_default_file_template
+create_role_binding_default_file: true
+
+# location of the role binding file for the default namespace. the role_binding_default_file_template will be copied
+# to this location if create_role_binding_default_file is set to true
+role_binding_default_file_location: "/etc/kubernetes/role-binding-default.yaml"
+
+# whether or not to create the role binding file for the kube-system namespace using role_binding_kube_system_file_template
+create_role_binding_kube_system_file: true
+
+# location of the role binding file for the kube-system namespace. the role_binding_kube_system_file_template will be copied
+# to this location if create_role_binding_kube_system_file is set to true
+role_binding_kube_system_file_location: "/etc/kubernetes/role-binding-kube-system.yaml"
+
+# the mountPath and hostPath for the API server volumeMount and volume that gets
+# added to the API server manifest file
+api_server_mount_path: "/etc/kubernetes"
+api_server_host_path: "/etc/kubernetes"
+
+# whether or not to add firewall rules to each machine in the cluster
+setup_k8s_firewall_rules: false
+
+# when adding firewall rules, setting this to true will add only kubernetes firewall
+# rules and do nothing else. setting this to false will add kubernetes firewall rules
+# and additionally perform all of the other actions in ansible-firewall, such as
+# adding purge rules, loopback rules, drop policy rules, etc.
+# It is recommended that you leave this set to true.
+add_only_k8s_firewall_rules: true
+
+tls_cipher_list: "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_128_GCM_SHA256"
+
+# iptables rules for master nodes.
+# see: https://kubernetes.io/docs/setup/independent/install-kubeadm/#check-required-ports
+master_iptables_rules:
+  - chain: INPUT
+    protocol: tcp
+    destination_port: "{{ cluster['secure_port'] }}"
+    ctstate: NEW,ESTABLISHED
+    jump: ACCEPT
+    comment: "Kubernetes API Server"
+  - chain: INPUT
+    protocol: tcp
+    destination_port: 2379:2380
+    ctstate: NEW,ESTABLISHED
+    jump: ACCEPT
+    comment: "etcd server client API"
+  - chain: INPUT
+    protocol: tcp
+    destination_port: 10250
+    ctstate: NEW,ESTABLISHED
+    jump: ACCEPT
+    comment: "Kubelet API"
+  - chain: INPUT
+    protocol: tcp
+    destination_port: 10251
+    ctstate: NEW,ESTABLISHED
+    jump: ACCEPT
+    comment: "kube-scheduler"
+  - chain: INPUT
+    protocol: tcp
+    destination_port: 10252
+    ctstate: NEW,ESTABLISHED
+    jump: ACCEPT
+    comment: "kube-controller-manager"
+
+# iptables rules for worker nodes.
+# see: https://kubernetes.io/docs/setup/independent/install-kubeadm/#check-required-ports
+worker_iptables_rules:
+  - chain: INPUT
+    protocol: tcp
+    destination_port: 2379:2380
+    ctstate: NEW,ESTABLISHED
+    jump: ACCEPT
+    comment: "etcd server client API"
+  - chain: INPUT
+    protocol: tcp
+    destination_port: 10250
+    ctstate: NEW,ESTABLISHED
+    jump: ACCEPT
+    comment: "Kubelet API"
+  - chain: INPUT
+    protocol: tcp
+    destination_port: 30000:32767
+    ctstate: NEW,ESTABLISHED
+    jump: ACCEPT
+    comment: "NodePort Services"
+
+# whether or not to tune kernel parameters
+tune_kernel_parameters: true
+
+# Location of the file that is used to write kernel parameters to
+sysctl_file_path: "/etc/sysctl.d/99-sysctl.conf"
+
+# If creating an AMI default configuration files for workes will be used
+ami_creation: false

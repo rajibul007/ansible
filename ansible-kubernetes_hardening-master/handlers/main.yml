@@ -1,0 +1,13 @@
+---
+- block: # Main Block -- used for applying sudo to handlers
+
+  - name: restart kubelet
+    systemd:
+      state: restarted
+      daemon_reload: yes
+      name: kubelet.service
+
+  # End of main block -- apply sudo to all tasks in block"
+  become: true
+  become_user: root
+  become_method: sudo

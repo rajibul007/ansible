@@ -1,0 +1,88 @@
+---
+
+- block: # block encompasses the entire file to apply sudo to all tasks
+
+  # # # # # # # # # # # # # # # # # # # # # # # # #
+  #  Section 2.1 of the CIS Kubernetes Benchmark  #
+  # # # # # # # # # # # # # # # # # # # # # # # # #
+
+  # The kubelet env file does not have the feature-gates flag by default in a kubeadm cluster.
+  # Here we are checking if that flag exists by doing a grep and capturing the return code
+  - name: Check if {{ cluster['kubelet_env_file'] }} contains the 'feature-gates' flag"
+    command: grep "feature-gates=" {{ cluster['kubelet_env_file'] }}
+    register: check_feature_gates
+    changed_when: false
+    failed_when: check_feature_gates.rc != 0 and check_feature_gates.rc != 1
+
+  - set_fact:
+      feature_gates_insert_after: "KUBELET_ARGS"
+    when: kubernetes_solution == 'kubespray'
+
+  - set_fact:
+      feature_gates_insert_after: "ExecStart=/home/kubernetes/bin/kubelet"
+    when: kubernetes_solution == 'gke'
+
+  # If the return code of the grep in the previous task is not zero, we know that feature-gates
+  # was not found.  If that is the case, we will add an empty feature gates flag to the file.
+  # This is so that we can later add feature-gates as per the CIS benchmark.
+  - name: Add feature-gates flag to {{ cluster['kubelet_env_file'] }}
+    lineinfile:
+      path: "{{ cluster['kubelet_env_file'] }}"
+      state: 'present'
+      regexp: '^\s*--feature-gates='
+      line: '    --feature-gates= \'
+      insertafter: "{{ feature_gates_insert_after | default('ExecStart=/usr/bin/kubelet') }}"
+    when: check_feature_gates.rc == 1
+
+  # Harden kubelet service file
+  # See {{ kubelet_env_configuration }} in the appropriate solution-specific
+  # vars file in order to understand what is happening here
+  - name: Configuring {{ cluster['kubelet_env_file'] }}
+    lineinfile:
+      path: "{{ cluster['kubelet_env_file'] }}"
+      state: '{{ item.state }}'
+      regexp: '{{ item.regexp }}'
+      backrefs: "{{ item.backrefs|default('no') }}"
+      line: '{{ item.line }}'
+      insertafter: "{{ item.insertafter|default('KUBELET_ARGS=\"') }}"
+    when: item.run | default(true)
+    with_items: "{{ kubelet_env_configuration }}"
+    notify:
+      - restart kubelet
+
+  # # # # # # # # # # # # # # # # # # # # # # # # #
+  #  Section 2.2 of the CIS Kubernetes Benchmark  #
+  # # # # # # # # # # # # # # # # # # # # # # # # #
+
+  - name: Setting Worker Configuration Files' Ownership and Permissions
+    file:
+      path: "{{ item }}"
+      owner: "{{ configuration_file_owner }}"
+      group: "{{ configuration_file_group }}"
+      mode: "{{ configuration_file_mode }}"
+    with_items: "{{ worker_configuration_files }}"
+
+  # 2.2.9 Ensure that the kubelet configuration file ownership is set to root:root
+  # 2.2.10 Ensure that the kubelet configuration file has permissions set to 644 or more restrictive
+  # For these two sections, there's a bit of an exception.  The file may not exist at all. Therefore we
+  # cannot confidently provide a value in the vars file for it.  Instead, in the next two tasks, we will
+  # check to see if the file exists, and if it does, set the ownership and permissions
+  - name: Determine if kubelet configuration file exists
+    command: ps -ef | grep kubelet | grep -oh "\-\-config=\S*" | awk '{print substr($0, index($0, "=")+1)}'
+    register: check_kubelet_configuration
+    changed_when: false
+    failed_when: check_kubelet_configuration.rc != 0 and check_kubelet_configuration.rc != 1
+    when: not ami_creation
+
+  - name: Setting Kubelet Configuration File's Ownership and Permissions
+    file:
+      path: "{{ check_kubelet_configuration.stdout }}"
+      owner: "{{ configuration_file_owner }}"
+      group: "{{ configuration_file_group }}"
+      mode: "{{ configuration_file_mode }}"
+    when: check_kubelet_configuration.rc is defined and check_kubelet_configuration.rc == 0
+
+  # end of block - apply sudo to all tasks in file
+  become: yes
+  become_user: root
+  become_method: sudo

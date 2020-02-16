@@ -1,0 +1,666 @@
+---
+cluster_defaults:
+  api_server_specification_file: "/etc/kubernetes/manifests/kube-apiserver.yaml"
+  scheduler_specification_file: "/etc/kubernetes/manifests/kube-scheduler.yaml"
+  controller_manager_specification_file: "/etc/kubernetes/manifests/kube-controller-manager.yaml"
+  scheduler_kubeconfig_file: "/etc/kubernetes/scheduler.conf"
+  controller_manager_kubeconfig_file: "/etc/kubernetes/controller-manager.conf"
+  node_kubeconfig_file: "/etc/kubernetes/kubelet.conf"
+  proxy_kubeconfig_file: "/etc/kubernetes/kubelet.conf"
+  admin_conf_file: "/etc/kubernetes/admin.conf"
+  etcd_env_file: "/etc/kubernetes/manifests/etcd.yaml"
+  # https://github.com/kubernetes/kubeadm/issues/1575#issuecomment-496432739
+  kubelet_env_file: "{{ (ansible_os_family == 'RedHat') | ternary('/usr/lib/systemd/system/kubelet.service.d/10-kubeadm.conf','/etc/systemd/system/kubelet.service.d/10-kubeadm.conf') }}"
+  secure_port: "6443"
+  audit_log_path: "/var/log/apiserver/audit.log"
+  worker_tls_cert_file: "/var/lib/kubelet/pki/kubelet.crt"
+  worker_tls_private_key_file: "/var/lib/kubelet/pki/kubelet.key"
+  kubelet_certificate_authority: "/etc/kubernetes/pki/ca.crt"
+  kubelet_client_certificate: "/etc/kubernetes/pki/apiserver-kubelet-client.crt"
+  kubelet_client_key: "/etc/kubernetes/pki/apiserver-kubelet-client.key"
+  service_account_key_file: "/etc/kubernetes/pki/sa.pub"
+  etcd_certfile: "/etc/kubernetes/pki/apiserver-etcd-client.crt"
+  etcd_keyfile: "/etc/kubernetes/pki/apiserver-etcd-client.key"
+  etcd_peer_certfile: "/etc/kubernetes/pki/etcd/peer.crt"
+  etcd_cafile: "/etc/kubernetes/pki/etcd/ca.crt"
+  etcd_data_directory: "/var/lib/etcd/"
+  etcd_is_cluster: false
+  etcd_peer_keyfile: "/etc/kubernetes/pki/etcd/peer.key"
+  etcd_wal_dir: "/var/lib/etcd/member/wal"
+  tls_cert_file: "/etc/kubernetes/pki/apiserver.crt"
+  tls_private_key_file: "/etc/kubernetes/pki/apiserver.key"
+  client_ca_file: "/etc/kubernetes/pki/ca.crt"
+  service_account_private_key_file: "/etc/kubernetes/pki/sa.key"
+  root_ca_file: "/etc/kubernetes/pki/ca.crt"
+  encryption_config_file_template: "encryption-config.j2"
+  audit_policy_file_template: "audit-policy.j2"
+  admission_control_config_file_template: "admission-configuration.j2"
+  event_config_file_template: "event-config.j2"
+  pod_security_policy_kube_system_file_template: "pod-security-policy-kube-system.j2"
+  pod_security_policy_default_file_template: "pod-security-policy-default.j2"
+  role_kube_system_file_template: "role-kube-system.j2"
+  role_default_file_template: "role-default.j2"
+  role_binding_default_file_template: "role-binding-default.j2"
+  role_binding_kube_system_file_template: "role-binding-kube-system.j2"
+  kubectl_user: "centos"
+  master_pki_directory: "/etc/kubernetes/pki/"
+
+# --------------- API Server Configuration -----------------
+#
+# Used in tasks/harden-masters.yml
+#
+# Each list item contains parameters for the lineinfile module
+#
+# Parameters to set for each list item:
+#   state - required. Either 'present' or 'absent' to add or remove the line
+#   regexp - required. The regular expression to search for
+#   line - required. The line to insert/replace into the file
+#   backrefs - optional. If set, line can contain backreferences. defaults to 'no'
+#              in tasks/harden-masters.yml
+#   insertafter - optional. Location in the file to insert the line after. Defaults to
+#                 '^\\s*- apiserver.*$' in tasks/harden-masters.yml
+# ----------------------------------------------------------
+api_server_configuration:
+  # 1.1.1 Ensure that the --anonymous-auth argument is set to false
+  - state: 'present'
+    regexp: '^\s*-\s*--anonymous-auth='
+    line: '    - --anonymous-auth=false'
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.2 Ensure that the --basic-auth-file argument is not set
+  - state: 'absent'
+    regexp: '(^\s*-\s*--basic-auth-file.*)'
+    line: ''
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.3 Ensure that the --insecure-allow-any-token argument is not set
+  - state: 'absent'
+    regexp: '(^\s*-\s*--insecure-allow-any-token.*)'
+    line: ''
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.4 Ensure that the --kubelet-https argument is set to true
+  - state: 'present'
+    regexp: '^\s*-\s*--kubelet-https='
+    line: '    - --kubelet-https=true'
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.5 Ensure that the --insecure-bind-address argument is not set
+  - state: 'absent'
+    regexp: '^\s*-\s*--insecure-bind-address='
+    line: ''
+    insertafter: '^\s*- kube-apiserver.*$'
+  # DEPRECATED in 1.11
+  # 1.1.6 Ensure that the --insecure-port argument is set to 0
+  - state: 'present'
+    regexp: '^\s*-\s*--insecure-port='
+    line: '    - --insecure-port=0'
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.7 Ensure that the --secure-port argument is not set to 0
+  - state: 'present'
+    regexp: '^\s*-\s*--secure-port='
+    line: "    - --secure-port={{ cluster['secure_port'] }}"
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.8 Ensure that the --profiling argument is set to false
+  - state: 'present'
+    regexp: '^\s*-\s*--profiling='
+    line: '    - --profiling=false'
+    insertafter: '^\s*- kube-apiserver.*$'
+  # This flag has been removed as of k8s 1.14
+  # 1.1.9 Ensure that the --repair-malformed-updates argument is set to false
+  # - state: 'present'
+  #   regexp: '^\s*-\s*--repair-malformed-updates='
+  #   line: '    - --repair-malformed-updates=false'
+  #   insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.10 Ensure that the admission control policy is not set to AlwaysAdmit
+  - state: 'present'
+    regexp: '(^\s*-\s*--enable-admission-plugins=)(.*)(AlwaysAdmit,*)(.*)'
+    line: '\1\2\4'
+    backrefs: 'yes'
+    insertafter: '^\s*- kube-apiserver.*$'
+  # If AlwaysAdmit was the last value, a trailing comma will remain. Here we are removing that last comma.
+  - state: 'present'
+    regexp: '(^\s*-\s*--enable-admission-plugins=)(.*)(,)$'
+    line: '\1\2'
+    backrefs: 'yes'
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.11 Ensure that the admission control policy is set to AlwaysPullImages
+  - state: 'present'
+    regexp: '(^\s*?-\s*?--enable-admission-plugins=(?!.*AlwaysPullImages.*).*$)'
+    line: '\1,AlwaysPullImages'
+    backrefs: 'yes'
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.12 Ensure that the admission control policy is set to DenyEscalatingExec
+  - state: 'present'
+    regexp: '(^\s*?-\s*?--enable-admission-plugins=(?!.*DenyEscalatingExec.*).*$)'
+    line: '\1,DenyEscalatingExec'
+    backrefs: 'yes'
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.13 Ensure that the admission control policy is set to SecurityContextDeny
+  - state: 'present'
+    regexp: '(^\s*?-\s*?--enable-admission-plugins=(?!.*SecurityContextDeny.*).*$)'
+    line: '\1,SecurityContextDeny'
+    backrefs: 'yes'
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.14 Ensure that the admission control policy is set to NamespaceLifecycle
+  - state: 'present'
+    regexp: '(^\s*?-\s*?--enable-admission-plugins=(?!.*NamespaceLifecycle.*).*$)'
+    line: '\1,NamespaceLifecycle'
+    backrefs: 'yes'
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.15 Ensure that the --audit-log-path argument is set as appropriate
+  - state: 'present'
+    regexp: '^\s*-\s*--audit-log-path='
+    line: "    - --audit-log-path={{ cluster['audit_log_path'] }}"
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.16 Ensure that the --audit-log-maxage argument is set to 30 or as appropriate
+  - state: 'present'
+    regexp: '^\s*-\s*--audit-log-maxage='
+    line: '    - --audit-log-maxage={{ audit_log_maxage }}'
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.17 Ensure that the --audit-log-maxbackup argument is set to 10 or as appropriate
+  - state: 'present'
+    regexp: '^\s*-\s*--audit-log-maxbackup='
+    line: '    - --audit-log-maxbackup={{ audit_log_maxbackup }}'
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.18 Ensure that the --audit-log-maxsize argument is set to 100 or as appropriate
+  - state: 'present'
+    regexp: '^\s*-\s*--audit-log-maxsize='
+    line: '    - --audit-log-maxsize={{ audit_log_maxsize }}'
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.19 Ensure that the --authorization-mode argument is not set to AlwaysAllow
+  - state: 'present'
+    regexp: '(^\s*-\s*--authorization-mode=)(.*)(AlwaysAllow,*)(.*)'
+    line: '\1\2\4'
+    backrefs: 'yes'
+    insertafter: '^\s*- kube-apiserver.*$'
+  # If AlwaysAllow was the last value, a trailing comma will remain. Here we are removing that last comma.
+  - state: 'present'
+    regexp: '(^\s*-\s*--authorization-mode=)(.*)(,)$'
+    line: '\1\2'
+    backrefs: 'yes'
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.20 Ensure that the --token-auth-file parameter is not set
+  - state: 'absent'
+    regexp: '(^\s*-\s*--token-auth-file=)'
+    line: ''
+    insertafter: '^\s*- kube-apiserver.*$'
+
+  # 1.1.21 Ensure that the --kubelet-certificate-authority argument is set as appropriate
+  #
+  # See: https://github.com/kubernetes/kubeadm/issues/118 and search for "kubelet-certificate-authority"
+  # More specifically, this comment: https://github.com/kubernetes/kubeadm/issues/118#issuecomment-407202481
+  # Setting it to "/etc/kubernetes/pki/ca.crt" results in the following error when running the 'kubectl port-forward' command:
+  #     "error dialing backend: x509: cannot validate certificate for <IP address> because it doesn't contain any IP SANs"
+  # This error suggests that "/etc/kubernetes/pki/ca.crt" is not the correct file for --kubelet-certificate-authority
+  #
+  # - state: 'present'
+  #   regexp: '^\s*-\s*--kubelet-certificate-authority='
+  #   line: "    - --kubelet-certificate-authority={{ cluster['kubelet_certificate_authority'] }}"
+  #   insertafter: '^\s*- kube-apiserver.*$'
+
+  # 1.1.22 Ensure that the --kubelet-client-certificate and --kubelet-client- key arguments are set as appropriate
+  - state: 'present'
+    regexp: '^\s*-\s*--kubelet-client-certificate='
+    line: "    - --kubelet-client-certificate={{ cluster['kubelet_client_certificate'] }}"
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.22 Ensure that the --kubelet-client-certificate and --kubelet-client- key arguments are set as appropriate
+  - state: 'present'
+    regexp: '^\s*-\s*--kubelet-client-key='
+    line: "    - --kubelet-client-key={{ cluster['kubelet_client_key'] }}"
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.23 Ensure that the --service-account-lookup argument is set to true
+  - state: 'present'
+    regexp: '^\s*-\s*--service-account-lookup='
+    line: '    - --service-account-lookup=true'
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.24 Ensure that the admission control policy is set to PodSecurityPolicy
+  - state: 'present'
+    regexp: '(^\s*?-\s*?--enable-admission-plugins=(?!.*PodSecurityPolicy.*).*$)'
+    line: '\1,PodSecurityPolicy'
+    backrefs: 'yes'
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.25 Ensure that the --service-account-key-file argument is set as appropriate
+  - state: 'present'
+    regexp: '^\s*-\s*--service-account-key-file='
+    line: "    - --service-account-key-file={{ cluster['service_account_key_file'] }}"
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.26 Ensure that the --etcd-certfile and --etcd-keyfile arguments are set as appropriate
+  - state: 'present'
+    regexp: '^\s*-\s*--etcd-certfile='
+    line: "    - --etcd-certfile={{ cluster['etcd_certfile'] }}"
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.26 Ensure that the --etcd-certfile and --etcd-keyfile arguments are set as appropriate
+  - state: 'present'
+    regexp: '^\s*-\s*--etcd-keyfile='
+    line: "    - --etcd-keyfile={{ cluster['etcd_keyfile'] }}"
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.27 Ensure that the admission control policy is set to ServiceAccount
+  - state: 'present'
+    regexp: '(^\s*?-\s*?--enable-admission-plugins=(?!.*ServiceAccount.*).*$)'
+    line: '\1,ServiceAccount'
+    backrefs: 'yes'
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.28 Ensure that the --tls-cert-file and --tls-private-key-file arguments are set as appropriate
+  - state: 'present'
+    regexp: '^\s*-\s*--tls-cert-file='
+    line: "    - --tls-cert-file={{ cluster['tls_cert_file'] }}"
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.28 Ensure that the --tls-cert-file and --tls-private-key-file arguments are set as appropriate
+  - state: 'present'
+    regexp: '^\s*-\s*--tls-private-key-file='
+    line: "    - --tls-private-key-file={{ cluster['tls_private_key_file'] }}"
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.29 Ensure that the --client-ca-file argument is set as appropriate
+  - state: 'present'
+    regexp: '^\s*-\s*--client-ca-file='
+    line: "    - --client-ca-file={{ cluster['client_ca_file'] }}"
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.30 Ensure that the API Server only makes use of Strong Cryptographic Ciphers (Not Scored)
+  - state: 'present'
+    regexp: '^\s*-\s*--tls-cipher-suites='
+    line: '    - --tls-cipher-suites={{ tls_cipher_list }}'
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.31 Ensure that the --etcd-cafile argument is set as appropriate
+  - state: 'present'
+    regexp: '^\s*-\s*--etcd-cafile='
+    line: "    - --etcd-cafile={{ cluster['etcd_cafile'] }}"
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.32 Ensure that the --authorization-mode argument is set to Node
+  - state: 'present'
+    regexp: '(^\s*?-\s*?--authorization-mode=(?!.*Node.*).*$)'
+    line: '\1,Node'
+    backrefs: 'yes'
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.33 Ensure that the admission control policy is set to NodeRestriction
+  - state: 'present'
+    regexp: '(^\s*?-\s*?--enable-admission-plugins=(?!.*NodeRestriction.*).*$)'
+    line: '\1,NodeRestriction'
+    backrefs: 'yes'
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.34 Ensure that the --experimental-encryption-provider-config argument is set as appropriate
+  # 1.1.35 Ensure that the encryption provider is set to aescbc (covered by the encryptiopn-config.j2 template)
+  - state: 'present'
+    regexp: '^\s*-\s*--experimental-encryption-provider-config='
+    line: '    - --experimental-encryption-provider-config={{ encryption_config_file_location }}'
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.36 Ensure that the admission control policy is set to EventRateLimit
+  - state: 'present'
+    regexp: '(^\s*?-\s*?--enable-admission-plugins=(?!.*EventRateLimit.*).*$)'
+    line: '\1,EventRateLimit'
+    backrefs: 'yes'
+    insertafter: '^\s*- kube-apiserver.*$'
+  # Also included in section 1.1.36, set the admission control config file as appropriate
+  - state: 'present'
+    regexp: '^\s*-\s*--admission-control-config-file='
+    line: '    - --admission-control-config-file={{ admission_control_config_file_location }}'
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.37 Ensure that the AdvancedAuditing argument is not set to false
+  - state: 'present'
+    regexp: '(^\s*-\s*--feature-gates=)(.*)(AdvancedAuditing=false,*)(.*)'
+    line: '\1\2\4'
+    backrefs: 'yes'
+    insertafter: '^\s*- kube-apiserver.*$'
+  # If AdvancedAuditing=false was the last value, a trailing comma will remain. Here we are removing that last comma.
+  - state: 'present'
+    regexp: '(^\s*-\s*--feature-gates=)(.*)(,)$'
+    line: '\1\2'
+    backrefs: 'yes'
+    insertafter: '^\s*- kube-apiserver.*$'
+  # Also included in section 1.1.37, set the audit policy file as appropriate
+  - state: 'present'
+    regexp: '^\s*-\s*--audit-policy-file='
+    line: '    - --audit-policy-file={{ audit_policy_file_location }}'
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.38 Ensure that the --request-timeout argument is set as appropriate
+  - state: 'present'
+    regexp: '^\s*-\s*--request-timeout='
+    line: '    - --request-timeout={{ request_timeout }}'
+    insertafter: '^\s*- kube-apiserver.*$'
+  # 1.1.39 Ensure that the --authorization-mode argument includes RBAC
+  - state: 'present'
+    regexp: '(^\s*?-\s*?--authorization-mode=(?!.*RBAC.*).*$)'
+    line: '\1,RBAC'
+    backrefs: 'yes'
+    insertafter: '^\s*- kube-apiserver.*$'
+  # Make sure there is no leading comma remaining on enable-admission-plugins
+  - state: 'present'
+    regexp: '(.*--enable-admission-plugins=)(,)(.*)(\s*$)'
+    line: '\1\3\4'
+    backrefs: 'yes'
+    insertafter: '^\s*- kube-apiserver.*$'
+
+# -------------- end api_server_configuration --------------
+
+
+# ----------- Scheduler Configuration -------------
+#
+# Used in tasks/harden-masters.yml
+#
+# Each list item contains parameters for the lineinfile module
+#
+# Parameters to set for each list item:
+#   state - required. Either 'present' or 'absent' to add or remove the line
+#   regexp - required. The regular expression to search for
+#   line - required. The line to insert/replace into the file
+#   backrefs - optional. If set, line can contain backreferences. defaults to 'no'
+#              in tasks/harden-masters.yml
+#   insertafter - optional. Location in the file to insert the line after. Defaults to
+#                 '^\\s*- scheduler.*$' in tasks/harden-masters.yml
+# ----------------------------------------------------------
+scheduler_configuration:
+  # 1.2.1 Ensure that the --profiling argument is set to false
+  - state: present
+    regexp: '^\s*-\s*--profiling='
+    line: '    - --profiling=false'
+    insertafter: '^\s*- kube-scheduler'
+  # 1.2.2 Ensure that the --address argument is set to 127.0.0.1
+  - state: present
+    regexp: '^\s*-\s*--bind-address='
+    line: '    - --bind-address=127.0.0.1'
+    insertafter: '^\s*- kube-scheduler'
+# ---------- end scheduler_configuration ----------
+
+
+# ----------- Controller Manager Configuration -------------
+#
+# Used in tasks/harden-masters.yml
+#
+# Each list item contains parameters for the lineinfile module
+#
+# Parameters to set for each list item:
+#   state - required. Either 'present' or 'absent' to add or remove the line
+#   regexp - required. The regular expression to search for
+#   line - required. The line to insert/replace into the file
+#   backrefs - optional. If set, line can contain backreferences. defaults to 'no'
+#              in tasks/harden-masters.yml
+#   insertafter - optional. Location in the file to insert the line after. Defaults to
+#                 '^\\s*- controller-manager.*$' in tasks/harden-masters.yml
+# ----------------------------------------------------------
+controller_manager_configuration:
+  # 1.3.1 Ensure that the --terminated-pod-gc-threshold argument is set as appropriate
+  - state: 'present'
+    regexp: '^\s*-\s*--terminated-pod-gc-threshold='
+    line: '    - --terminated-pod-gc-threshold={{ terminated_pod_gc_threshold }}'
+    insertafter: '^\s*- kube-controller-manager.*$'
+  # 1.3.2 Ensure that the --profiling argument is set to false
+  - state: 'present'
+    regexp: '^\s*-\s*--profiling='
+    line: '    - --profiling=false'
+    insertafter: '^\s*- kube-controller-manager.*$'
+  # 1.3.3 Ensure that the --use-service-account-credentials argument is set to true
+  - state: 'present'
+    regexp: '^\s*-\s*--use-service-account-credentials='
+    line: '    - --use-service-account-credentials=true'
+    insertafter: '^\s*- kube-controller-manager.*$'
+  # 1.3.4 Ensure that the --service-account-private-key-file argument is set as appropriate
+  - state: 'present'
+    regexp: '^\s*-\s*--service-account-private-key-file='
+    line: "    - --service-account-private-key-file={{ cluster['service_account_private_key_file'] }}"
+    insertafter: '^\s*- kube-controller-manager.*$'
+  # 1.3.5 Ensure that the --root-ca-file argument is set as appropriate
+  - state: 'present'
+    regexp: '^\s*-\s*--root-ca-file='
+    line: "    - --root-ca-file={{ cluster['root_ca_file'] }}"
+    insertafter: '^\s*- kube-controller-manager.*$'
+  # 1.3.6 Ensure that the RotateKubeletServerCertificate argument is set to true
+  - state: 'present'
+    regexp: '(^\s*?-\s*?--feature-gates=(?!.*RotateKubeletServerCertificate=true.*).*$)'
+    line: '\1,RotateKubeletServerCertificate=true'
+    backrefs: 'yes'
+    insertafter: '^\s*- kube-controller-manager.*$'
+  # If RotateKubeletServerCertificate=true is the first value, a leading comma will remain. Here we are removing that leading comma.
+  - state: 'present'
+    regexp: '(.*--feature-gates=)(,)(.*$)'
+    line: '\1\3'
+    backrefs: 'yes'
+    insertafter: '^\s*- kube-controller-manager.*$'
+  # 1.3.7 Ensure that the --address argument is set to 127.0.0.1
+  - state: 'present'
+    regexp: '^\s*-\s*--bind-address='
+    line: '    - --bind-address=127.0.0.1'
+    insertafter: '^\s*- kube-controller-manager.*$'
+# ---------- end controller_manager_configuration ----------
+
+# ---------------- ETCD ENV Configuration ------------------
+#
+# Used in tasks/harden-masters.yml
+#
+# Each list item contains parameters for the lineinfile module
+#
+# Parameters to set for each list item:
+#   state - required. Either 'present' or 'absent' to add or remove the line
+#   regexp - required. The regular expression to search for
+#   line - required. The line to insert/replace into the file
+#   backrefs - optional. If set, line can contain backreferences. defaults to 'no'
+#              in tasks/harden-masters.yml
+#   insertafter - optional. Location in the file to insert the line after. Defaults to
+#                 'EOF' in tasks/harden-masters.yml
+#   run - optional. whether or not to execute the particular line item. Defaults to
+#         'true' in tasks/harden-masters.yml
+# ----------------------------------------------------------
+etcd_env_configuration:
+  # 1.5.1 Ensure that the --cert-file and --key-file arguments are set as appropriate
+  - state: 'present'
+    regexp: '^\s*-\s*--cert-file='
+    #line: "        - --cert-file={{ cluster['etcd_certfile'] }}"
+    line: "    - --cert-file=/etc/kubernetes/pki/etcd/server.crt"
+    insertafter: '^\s*-\s*etcd'
+  - state: 'present'
+    regexp: '^\s*-\s*--key-file='
+    #line: "        - --key-file={{ cluster['etcd_keyfile'] }}"
+    line: "    - --key-file=/etc/kubernetes/pki/etcd/server.key"
+    insertafter: '^\s*-\s*etcd'
+  # 1.5.2 Ensure that the --client-cert-auth argument is set to true
+  - state: 'present'
+    regexp: '^\s*-\s*--client-cert-auth='
+    line: '    - --client-cert-auth=true'
+    insertafter: '^\s*-\s*etcd'
+  # 1.5.3 Ensure that the --auto-tls argument is not set to true
+  - state: 'present'
+    regexp: '^\s*-\s*--auto-tls='
+    line: '    - --auto-tls=false'
+    insertafter: '^\s*-\s*etcd'
+  # 1.5.4 Ensure that the --peer-cert-file and --peer-key-file arguments are set as appropriate
+  # Note: This recommendation is applicable only for etcd clusters. If you are using only one etcd server
+  # in your environment then this recommendation is not applicable.
+  - state: 'present'
+    regexp: '^\s*-\s*--peer-cert-file='
+    line: "    - --peer-cert-file={{ cluster['etcd_peer_certfile'] }}"
+    run: "{{ cluster['etcd_is_cluster'] }}"
+    insertafter: '^\s*-\s*etcd'
+  - state: 'present'
+    regexp: '^\s*-\s*--peer-key-file='
+    line: "    - --peer-key-file={{ cluster['etcd_peer_keyfile'] }}"
+    run: "{{ cluster['etcd_is_cluster'] }}"
+    insertafter: '^\s*-\s*etcd'
+  # 1.5.5 Ensure that the --peer-client-cert-auth argument is set to true
+  # Note: This recommendation is applicable only for etcd clusters. If you are using only one etcd server
+  # in your environment then this recommendation is not applicable.
+  - state: 'present'
+    regexp: '^\s*-\s*--peer-client-cert-auth='
+    line: '    - --peer-client-cert-auth=true'
+    run: "{{ cluster['etcd_is_cluster'] }}"
+    insertafter: '^\s*-\s*etcd'
+  # 1.5.6 Ensure that the --peer-auto-tls argument is not set to true
+  # either remove the --peer-auto-tls parameter or set it to false
+  # Note: This recommendation is applicable only for etcd clusters. If you are using only one etcd server
+  # in your environment then this recommendation is not applicable.
+  - state: 'absent'
+    regexp: '^\s*-\s*--peer-auto-tls='
+    line: ''
+    run: "{{ cluster['etcd_is_cluster'] }}"
+    insertafter: '^\s*-\s*etcd'
+
+  # 1.5.7 Ensure that a unique Certificate Authority is used for etcd (Not Scored)
+
+# --------------- end etcd_env_configuration ---------------
+
+# ------------- Kubelet Env Configuration --------------
+#
+# Used in tasks/harden-workers.yml
+#
+# Each list item contains parameters for the lineinfile module
+#
+# Parameters to set for each list item:
+#   state - required. Either 'present' or 'absent' to add or remove the line
+#   regexp - required. The regular expression to search for
+#   line - required. The line to insert/replace into the file
+#   backrefs - optional. If set, line can contain backreferences. defaults to 'no'
+#              in tasks/harden-workers.yml
+#   insertafter - optional. Location in the file to insert the line after. Defaults to
+#                 'KUBELET_ARGS=\"' in tasks/harden-workers.yml
+#   run - optional. whether or not to execute the particular line item. Defaults to
+#         'true' in tasks/harden-workers.yml
+# ----------------------------------------------------------
+kubelet_env_configuration:
+
+  # Ensure there is a backslash at the end of the current line since any
+  # args we add will be on new lines
+  - state: 'present'
+    regexp: '(ExecStart=/usr/bin/kubelet(?!.*\\).*$)'
+    line: '\1 \\'
+    backrefs: 'yes'
+    insertafter: 'ExecStart=/usr/bin/kubelet'
+  # 2.1.1 Ensure that the --anonymous-auth argument is set to false
+  - state: 'present'
+    regexp: '\s*--anonymous-auth='
+    line: '    --anonymous-auth=false \'
+    insertafter: 'ExecStart=/usr/bin/kubelet'
+  # 2.1.2 Ensure that the --authorization-mode argument is not set to AlwaysAllow
+  - state: 'present'
+    regexp: '(--authorization-mode=)(.*)(AlwaysAllow,*)(.*)'
+    line: '\1\2\4'
+    backrefs: 'yes'
+    insertafter: 'ExecStart=/usr/bin/kubelet'
+  # If AlwaysAllow was the last value, a trailing comma will remain. Here we are removing that last comma.
+  - state: 'present'
+    regexp: '(--authorization-mode=)(.*)(,)( \\)$'
+    line: '\1\2\4'
+    backrefs: 'yes'
+    insertafter: 'ExecStart=/usr/bin/kubelet'
+  # 2.1.3 Ensure that the --client-ca-file argument is set as appropriate
+  - state: 'present'
+    regexp: '^\s*--client-ca-file='
+    line: "    --client-ca-file={{ cluster['client_ca_file'] }} \\"
+    insertafter: 'ExecStart=/usr/bin/kubelet'
+  # 2.1.4 Ensure that the --read-only-port argument is set to 0
+  - state: 'present'
+    regexp: '^\s*--read-only-port='
+    line: '    --read-only-port=0 \'
+    insertafter: 'ExecStart=/usr/bin/kubelet'
+  # 2.1.5 Ensure that the --streaming-connection-idle-timeout argument is not set to 0
+  - state: 'present'
+    regexp: '^\s*--streaming-connection-idle-timeout='
+    line: '    --streaming-connection-idle-timeout={{ kubelet_streaming_connection_idle_timeout }} \'
+    insertafter: 'ExecStart=/usr/bin/kubelet'
+  # 2.1.6 Ensure that the --protect-kernel-defaults argument is set to true
+  # The kubelet process needs the following kernel parameters set:
+  #   vm.overcommit_memory=1
+  #   kernel.panic=10
+  #   kernel.panic_on_oops=1
+  # Setting the role variable {{ tune_kernel_parameters }} to true (default value) will ensure
+  # that these parameters are set prior to hardening
+  - state: 'present'
+    regexp: '^\s*--protect-kernel-defaults='
+    line: '    --protect-kernel-defaults=true \'
+    insertafter: 'ExecStart=/usr/bin/kubelet'
+  # 2.1.7 Ensure that the --make-iptables-util-chains argument is set to true
+  - state: 'present'
+    regexp: '^\s*--make-iptables-util-chains='
+    line: '    --make-iptables-util-chains=true \'
+    run: '{{ kubelet_manages_iptables }}'
+    insertafter: 'ExecStart=/usr/bin/kubelet'
+  # 2.1.8 Ensure that the --hostname-override argument is not set
+  - state: 'absent'
+    regexp: '^\s*--hostname-override='
+    line: ''
+    insertafter: 'ExecStart=/usr/bin/kubelet'
+  # 2.1.9 Ensure that the --event-qps argument is set to 0
+  - state: 'present'
+    regexp: '^\s*--event-qps='
+    line: '    --event-qps=0 \'
+    insertafter: 'ExecStart=/usr/bin/kubelet'
+  # 2.1.10 Ensure that the --tls-cert-file and --tls-private-key-file arguments are set as appropriate
+  - state: 'present'
+    regexp: '^\s*--tls-cert-file='
+    line: "    --tls-cert-file={{ cluster['worker_tls_cert_file'] }} \\"
+    insertafter: 'ExecStart=/usr/bin/kubelet'
+  - state: 'present'
+    regexp: '^\s*--tls-private-key-file='
+    line: "    --tls-private-key-file={{ cluster['worker_tls_private_key_file'] }} \\"
+    insertafter: 'ExecStart=/usr/bin/kubelet'
+
+  # The cadvisor-port flag was completely removed from Kuberentes as of version 1.12
+  #
+  # 2.1.11 Ensure that the --cadvisor-port argument is set to 0
+  # - state: 'present'
+  #   regexp: '^\s*--cadvisor-port='
+  #   line: '    --cadvisor-port=0 \'
+  #   insertafter: 'ExecStart=/usr/bin/kubelet'
+
+  # 2.1.12 Ensure that the --rotate-certificates argument is not set to false
+  - state: 'present'
+    regexp: '^\s*--rotate-certificates='
+    line: '    --rotate-certificates=true \'
+    run: '{{ rotate_kubelet_server_certificate }}'
+    insertafter: 'ExecStart=/usr/bin/kubelet'
+  # 2.1.12 --rotate-certificates also requires the RotateKubeletClientCertificate
+  # feature gate to be enabled
+  - state: 'present'
+    regexp: '(.*--feature-gates=(?!.*RotateKubeletClientCertificate=true.*).*)(.* \\$)'
+    line: '\1,RotateKubeletClientCertificate=true\2'
+    backrefs: 'yes'
+    run: '{{ rotate_kubelet_client_certificate }}'
+    insertafter: 'ExecStart=/usr/bin/kubelet'
+  # 2.1.13 Ensure that the RotateKubeletServerCertificate argument is set to true
+  - state: 'present'
+    regexp: '(.*--feature-gates=(?!.*RotateKubeletServerCertificate=true.*).*)(.* \\$)'
+    line: '\1,RotateKubeletServerCertificate=true\2'
+    backrefs: 'yes'
+    run: '{{ rotate_kubelet_server_certificate }}'
+    insertafter: 'ExecStart=/usr/bin/kubelet'
+  # 2.1.14 Ensure that the Kubelet only makes use of Strong Cryptographic Ciphers
+  - state: 'present'
+    regexp: '^\s*--tls-cipher-suites='
+    line: '    --tls-cipher-suites={{ tls_cipher_list }} \'
+    insertafter: 'ExecStart=/usr/bin/kubelet'
+  # If RotateKubeletServerCertificate=true is the first value, a leading comma will remain. Here we are removing that leading comma.
+  - state: 'present'
+    regexp: '(.*--feature-gates=)(,)(.*)(\s*$)'
+    line: '\1\3\4'
+    backrefs: 'yes'
+    run: '{{ rotate_kubelet_server_certificate }}'
+    insertafter: 'ExecStart=/usr/bin/kubelet'
+  # Since each arg is on a new line, we put backslashes after the args. The only issue with that is that
+  # the last arg added will end with a backslash. The backslash will break the command if there is nothing
+  # on the next line unless you put a semicolon.
+  - state: 'present'
+    regexp: ';'
+    line: ';'
+    insertafter: '\\'
+# ----------- end kubelet_env_configuration ------------
+
+# List of master configuration files that have their ownership and permissions modified as part of hardening
+master_configuration_files:
+  - "{{ cluster['api_server_specification_file'] }}"
+  - "{{ cluster['controller_manager_specification_file'] }}"
+  - "{{ cluster['scheduler_specification_file'] }}"
+  - "{{ cluster['etcd_env_file'] }}"
+  - "{{ cluster['admin_conf_file'] }}"
+  - "{{ cluster['scheduler_kubeconfig_file'] }}"
+  - "{{ cluster['controller_manager_kubeconfig_file'] }}"
+
+# List of worker configuration files that have their ownership and permissions modified as part of hardening
+worker_configuration_files:
+  - "{{ cluster['node_kubeconfig_file'] }}"
+  - "{{ cluster['kubelet_env_file'] }}"
+  - "{{ cluster['proxy_kubeconfig_file'] }}"
+  - "{{ cluster['client_ca_file'] }}"
+
+configuration_file_owner: "root"
+configuration_file_group: "root"
+configuration_file_mode: 0644
+
+etcd_data_directory_owner: "{{ cluster['kubectl_user'] }}"
+etcd_data_directory_group: "{{ cluster['kubectl_user'] }}"
+etcd_data_directory_mode: 0700
+
+master_pki_directory_owner: "root"
+master_pki_directory_group: "root"

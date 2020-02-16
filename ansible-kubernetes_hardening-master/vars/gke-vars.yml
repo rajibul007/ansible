@@ -1,0 +1,194 @@
+---
+cluster_defaults:
+  api_server_specification_file: "/etc/kubernetes/manifests/kube-apiserver.yaml"
+  scheduler_specification_file: "/etc/kubernetes/manifests/kube-scheduler.yaml"
+  controller_manager_specification_file: "/etc/kubernetes/manifests/kube-controller-manager.yaml"
+  scheduler_kubeconfig_file: "/etc/kubernetes/scheduler.conf"
+  controller_manager_kubeconfig_file: "/etc/kubernetes/controller-manager.conf"
+  node_kubeconfig_file: "/home/kubernetes/kubelet-config.yaml"
+  proxy_kubeconfig_file: "/etc/kubernetes/manifests/kube-proxy.manifest"
+  admin_conf_file: "/etc/kubernetes/admin.conf"
+  etcd_env_file: "/etc/kubernetes/manifests/etcd.yaml"
+  kubelet_env_file: "/etc/systemd/system/kubelet.service"
+  secure_port: "6443"
+  audit_log_path: "/var/log/apiserver/audit.log"
+  worker_tls_cert_file: "/etc/srv/kubernetes/pki/kubelet.crt"
+  worker_tls_private_key_file: "/etc/srv/kubernetes/pki/kubelet.key"
+  kubelet_certificate_authority: "/etc/srv/kubernetes/pki/ca-certificates.crt"
+  kubelet_client_certificate: "/etc/srv/kubernetes/pki/kubelet.crt"
+  kubelet_client_key: "/etc/srv/kubernetes/pki/kubelet.key"
+  service_account_key_file: "/etc/kubernetes/pki/sa.pub"
+  etcd_certfile: "/etc/kubernetes/pki/apiserver-etcd-client.crt"
+  etcd_keyfile: "/etc/kubernetes/pki/apiserver-etcd-client.key"
+  etcd_peer_certfile: "/etc/kubernetes/pki/etcd/peer.crt"
+  etcd_cafile: "/etc/kubernetes/pki/etcd/ca.crt"
+  etcd_data_directory: "/var/lib/etcd/"
+  etcd_is_cluster: false
+  etcd_peer_keyfile: "/etc/kubernetes/pki/etcd/peer.key"
+  etcd_wal_dir: "/var/lib/etcd/member/wal"
+  tls_cert_file: "/etc/kubernetes/pki/apiserver.crt"
+  tls_private_key_file: "/etc/kubernetes/pki/apiserver.key"
+  client_ca_file: "/etc/srv/kubernetes/pki/ca-certificates.crt"
+  service_account_private_key_file: "/etc/kubernetes/pki/sa.key"
+  root_ca_file: "/etc/kubernetes/pki/ca.crt"
+  encryption_config_file_template: "encryption-config.j2"
+  audit_policy_file_template: "audit-policy.j2"
+  admission_control_config_file_template: "admission-configuration.j2"
+  event_config_file_template: "event-config.j2"
+  pod_security_policy_kube_system_file_template: "pod-security-policy-kube-system.j2"
+  pod_security_policy_default_file_template: "pod-security-policy-default.j2"
+  role_kube_system_file_template: "role-kube-system.j2"
+  role_default_file_template: "role-default.j2"
+  role_binding_default_file_template: "role-binding-default.j2"
+  role_binding_kube_system_file_template: "role-binding-kube-system.j2"
+  kubectl_user: "ubuntu"
+  master_pki_directory: ""
+
+# ------------- Kubelet Env Configuration --------------
+#
+# Used in tasks/harden-workers.yml
+#
+# Each list item contains parameters for the lineinfile module
+#
+# Parameters to set for each list item:
+#   state - required. Either 'present' or 'absent' to add or remove the line
+#   regexp - required. The regular expression to search for
+#   line - required. The line to insert/replace into the file
+#   backrefs - optional. If set, line can contain backreferences. defaults to 'no'
+#              in tasks/harden-workers.yml
+#   insertafter - optional. Location in the file to insert the line after. Defaults to
+#                 'KUBELET_ARGS=\"' in tasks/harden-workers.yml
+#   run - optional. whether or not to execute the particular line item. Defaults to
+#         'true' in tasks/harden-workers.yml
+# ----------------------------------------------------------
+kubelet_env_configuration:
+
+  # Ensure there is a backslash at the end of the current line since any
+  # args we add will be on new lines
+  - state: 'present'
+    regexp: '(ExecStart=/home/kubernetes/bin/kubelet(?!.*\\).*$)'
+    line: '\1 \\'
+    backrefs: 'yes'
+    insertafter: 'ExecStart=/home/kubernetes/bin/kubelet'
+  # 2.1.1 Ensure that the --anonymous-auth argument is set to false
+  - state: 'present'
+    regexp: '\s*--anonymous-auth='
+    line: '    --anonymous-auth=false \'
+    insertafter: 'ExecStart=/home/kubernetes/bin/kubelet'
+  # 2.1.2 Ensure that the --authorization-mode argument is not set to AlwaysAllow
+  - state: 'present'
+    regexp: '(--authorization-mode=)(.*)(AlwaysAllow,*)(.*)'
+    line: '\1\2\4'
+    backrefs: 'yes'
+    insertafter: 'ExecStart=/home/kubernetes/bin/kubelet'
+  # If AlwaysAllow was the last value, a trailing comma will remain. Here we are removing that last comma.
+  - state: 'present'
+    regexp: '(--authorization-mode=)(.*)(,)( \\)$'
+    line: '\1\2\4'
+    backrefs: 'yes'
+    insertafter: 'ExecStart=/home/kubernetes/bin/kubelet'
+  # 2.1.3 Ensure that the --client-ca-file argument is set as appropriate
+  - state: 'present'
+    regexp: '^\s*--client-ca-file='
+    line: "    --client-ca-file={{ cluster['client_ca_file'] }} \\"
+    insertafter: 'ExecStart=/home/kubernetes/bin/kubelet'
+  # 2.1.4 Ensure that the --read-only-port argument is set to 0
+  - state: 'present'
+    regexp: '^\s*--read-only-port='
+    line: '    --read-only-port=0 \'
+    insertafter: 'ExecStart=/home/kubernetes/bin/kubelet'
+  # 2.1.5 Ensure that the --streaming-connection-idle-timeout argument is not set to 0
+  - state: 'present'
+    regexp: '^\s*--streaming-connection-idle-timeout='
+    line: '    --streaming-connection-idle-timeout={{ kubelet_streaming_connection_idle_timeout }} \'
+    insertafter: 'ExecStart=/home/kubernetes/bin/kubelet'
+  # 2.1.6 Ensure that the --protect-kernel-defaults argument is set to true
+  # The kubelet process needs the following kernel parameters set:
+  #   vm.overcommit_memory=1
+  #   kernel.panic=10
+  #   kernel.panic_on_oops=1
+  # Setting the role variable {{ tune_kernel_parameters }} to true (default value) will ensure
+  # that these parameters are set prior to hardening
+  - state: 'present'
+    regexp: '^\s*--protect-kernel-defaults='
+    line: '    --protect-kernel-defaults=true \'
+    insertafter: 'ExecStart=/home/kubernetes/bin/kubelet'
+  # 2.1.7 Ensure that the --make-iptables-util-chains argument is set to true
+  - state: 'present'
+    regexp: '^\s*--make-iptables-util-chains='
+    line: '    --make-iptables-util-chains=true \'
+    run: '{{ kubelet_manages_iptables }}'
+    insertafter: 'ExecStart=/home/kubernetes/bin/kubelet'
+  # 2.1.8 Ensure that the --hostname-override argument is not set
+  - state: 'absent'
+    regexp: '^\s*--hostname-override='
+    line: ''
+    insertafter: 'ExecStart=/home/kubernetes/bin/kubelet'
+  # 2.1.9 Ensure that the --event-qps argument is set to 0
+  - state: 'present'
+    regexp: '^\s*--event-qps='
+    line: '    --event-qps=0 \'
+    insertafter: 'ExecStart=/home/kubernetes/bin/kubelet'
+  # 2.1.10 Ensure that the --tls-cert-file and --tls-private-key-file arguments are set as appropriate
+  - state: 'present'
+    regexp: '^\s*--tls-cert-file='
+    line: "    --tls-cert-file={{ cluster['worker_tls_cert_file'] }} \\"
+    insertafter: 'ExecStart=/home/kubernetes/bin/kubelet'
+  - state: 'present'
+    regexp: '^\s*--tls-private-key-file='
+    line: "    --tls-private-key-file={{ cluster['worker_tls_private_key_file'] }} \\"
+    insertafter: 'ExecStart=/home/kubernetes/bin/kubelet'
+
+  # The cadvisor-port flag was completely removed from Kuberentes as of version 1.12
+  #
+  # 2.1.11 Ensure that the --cadvisor-port argument is set to 0
+  # - state: 'present'
+  #   regexp: '^\s*--cadvisor-port='
+  #   line: '    --cadvisor-port=0 \'
+  #   insertafter: 'ExecStart=/home/kubernetes/bin/kubelet'
+
+  # 2.1.12 Ensure that the --rotate-certificates argument is not set to false
+  - state: 'present'
+    regexp: '^\s*--rotate-certificates='
+    line: '    --rotate-certificates=true \'
+    run: '{{ rotate_kubelet_server_certificate }}'
+    insertafter: 'ExecStart=/home/kubernetes/bin/kubelet'
+  # 2.1.12 --rotate-certificates also requires the RotateKubeletClientCertificate
+  # feature gate to be enabled
+  - state: 'present'
+    regexp: '(.*--feature-gates=(?!.*RotateKubeletClientCertificate=true.*).*)(.* \\$)'
+    line: '\1,RotateKubeletClientCertificate=true\2'
+    backrefs: 'yes'
+    run: '{{ rotate_kubelet_client_certificate }}'
+    insertafter: 'ExecStart=/home/kubernetes/bin/kubelet'
+  # 2.1.13 Ensure that the RotateKubeletServerCertificate argument is set to true
+  - state: 'present'
+    regexp: '(.*--feature-gates=(?!.*RotateKubeletServerCertificate=true.*).*)(.* \\$)'
+    line: '\1,RotateKubeletServerCertificate=true\2'
+    backrefs: 'yes'
+    run: '{{ rotate_kubelet_server_certificate }}'
+    insertafter: 'ExecStart=/home/kubernetes/bin/kubelet'
+  # 2.1.14 Ensure that the Kubelet only makes use of Strong Cryptographic Ciphers
+  - state: 'present'
+    regexp: '^\s*--tls-cipher-suites='
+    line: '    --tls-cipher-suites={{ tls_cipher_list }} \'
+    insertafter: 'ExecStart=/home/kubernetes/bin/kubelet'
+  # If RotateKubeletServerCertificate=true is the first value, a leading comma will remain. Here we are removing that leading comma.
+  - state: 'present'
+    regexp: '(.*--feature-gates=)(,)(.*)(\s*$)'
+    line: '\1\3\4'
+    backrefs: 'yes'
+    run: '{{ rotate_kubelet_server_certificate }}'
+    insertafter: 'ExecStart=/home/kubernetes/bin/kubelet'
+# ----------- end kubelet_env_configuration ------------
+
+# List of worker configuration files that have their ownership and permissions modified as part of hardening
+worker_configuration_files:
+  - "{{ cluster['node_kubeconfig_file'] }}"
+  - "{{ cluster['kubelet_env_file'] }}"
+  - "{{ cluster['proxy_kubeconfig_file'] }}"
+  - "{{ cluster['client_ca_file'] }}"
+
+configuration_file_owner: "root"
+configuration_file_group: "root"
+configuration_file_mode: 0644

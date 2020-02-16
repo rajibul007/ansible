@@ -1,0 +1,103 @@
+---
+- name: Including solution-specific vars file.
+  include_vars: "{{ kubernetes_solution | lower }}-vars.yml"
+
+- name: Applying any overridden cluster defaults
+  set_fact:
+    cluster:
+      api_server_specification_file:          "{{ cluster_defaults_override['api_server_specification_file'] | default( cluster_defaults['api_server_specification_file'] ) }}"
+      scheduler_specification_file:           "{{ cluster_defaults_override['scheduler_specification_file'] | default( cluster_defaults['scheduler_specification_file'] ) }}"
+      controller_manager_specification_file:  "{{ cluster_defaults_override['controller_manager_specification_file'] | default( cluster_defaults['controller_manager_specification_file'] ) }}"
+      scheduler_kubeconfig_file:              "{{ cluster_defaults_override['scheduler_kubeconfig_file'] | default( cluster_defaults['scheduler_kubeconfig_file'] ) }}"
+      controller_manager_kubeconfig_file:     "{{ cluster_defaults_override['controller_manager_kubeconfig_file'] | default( cluster_defaults['controller_manager_kubeconfig_file'] ) }}"
+      node_kubeconfig_file:                   "{{ cluster_defaults_override['node_kubeconfig_file'] | default( cluster_defaults['node_kubeconfig_file'] ) }}"
+      proxy_kubeconfig_file:                  "{{ cluster_defaults_override['proxy_kubeconfig_file'] | default( cluster_defaults['proxy_kubeconfig_file'] ) }}"
+      admin_conf_file:                        "{{ cluster_defaults_override['admin_conf_file'] | default( cluster_defaults['admin_conf_file'] ) }}"
+      etcd_env_file:                          "{{ cluster_defaults_override['etcd_env_file'] | default( cluster_defaults['etcd_env_file'] ) }}"
+      kubelet_env_file:                       "{{ cluster_defaults_override['kubelet_env_file'] | default( cluster_defaults['kubelet_env_file'] ) }}"
+      secure_port:                            "{{ cluster_defaults_override['secure_port'] | default( cluster_defaults['secure_port'] ) }}"
+      audit_log_path:                         "{{ cluster_defaults_override['audit_log_path'] | default( cluster_defaults['audit_log_path'] ) }}"
+      worker_tls_cert_file:                   "{{ cluster_defaults_override['worker_tls_cert_file'] | default( cluster_defaults['worker_tls_cert_file'] ) }}"
+      worker_tls_private_key_file:            "{{ cluster_defaults_override['worker_tls_private_key_file'] | default( cluster_defaults['worker_tls_private_key_file'] ) }}"
+      kubelet_certificate_authority:          "{{ cluster_defaults_override['kubelet_certificate_authority'] | default( cluster_defaults['kubelet_certificate_authority'] ) }}"
+      kubelet_client_certificate:             "{{ cluster_defaults_override['kubelet_client_certificate'] | default( cluster_defaults['kubelet_client_certificate'] ) }}"
+      kubelet_client_key:                     "{{ cluster_defaults_override['kubelet_client_key'] | default( cluster_defaults['kubelet_client_key'] ) }}"
+      service_account_key_file:               "{{ cluster_defaults_override['service_account_key_file'] | default( cluster_defaults['service_account_key_file'] ) }}"
+      etcd_certfile:                          "{{ cluster_defaults_override['etcd_certfile'] | default( cluster_defaults['etcd_certfile'] ) }}"
+      etcd_keyfile:                           "{{ cluster_defaults_override['etcd_keyfile'] | default( cluster_defaults['etcd_keyfile'] ) }}"
+      etcd_peer_certfile:                     "{{ cluster_defaults_override['etcd_peer_certfile'] | default( cluster_defaults['etcd_peer_certfile'] ) }}"
+      etcd_cafile:                            "{{ cluster_defaults_override['etcd_cafile'] | default( cluster_defaults['etcd_cafile'] ) }}"
+      etcd_data_directory:                    "{{ cluster_defaults_override['etcd_data_directory'] | default( cluster_defaults['etcd_data_directory'] ) }}"
+      etcd_is_cluster:                        "{{ cluster_defaults_override['etcd_is_cluster'] | default( cluster_defaults['etcd_is_cluster'] ) }}"
+      etcd_peer_keyfile:                      "{{ cluster_defaults_override['etcd_peer_keyfile'] | default( cluster_defaults['etcd_peer_keyfile'] ) }}"
+      etcd_wal_dir:                           "{{ cluster_defaults_override['etcd_wal_dir'] | default( cluster_defaults['etcd_wal_dir'] ) }}"
+      tls_cert_file:                          "{{ cluster_defaults_override['tls_cert_file'] | default( cluster_defaults['tls_cert_file'] ) }}"
+      tls_private_key_file:                   "{{ cluster_defaults_override['tls_private_key_file'] | default( cluster_defaults['tls_private_key_file'] ) }}"
+      client_ca_file:                         "{{ cluster_defaults_override['client_ca_file'] | default( cluster_defaults['client_ca_file'] ) }}"
+      service_account_private_key_file:       "{{ cluster_defaults_override['service_account_private_key_file'] | default( cluster_defaults['service_account_private_key_file'] ) }}"
+      root_ca_file:                           "{{ cluster_defaults_override['root_ca_file'] | default( cluster_defaults['root_ca_file'] ) }}"
+      encryption_config_file_template:        "{{ cluster_defaults_override['encryption_config_file_template'] | default( cluster_defaults['encryption_config_file_template'] ) }}"
+      audit_policy_file_template:             "{{ cluster_defaults_override['audit_policy_file_template'] | default( cluster_defaults['audit_policy_file_template'] ) }}"
+      admission_control_config_file_template: "{{ cluster_defaults_override['admission_control_config_file_template'] | default(cluster_defaults['admission_control_config_file_template']) }}"
+      event_config_file_template:             "{{ cluster_defaults_override['event_config_file_template'] | default( cluster_defaults['event_config_file_template'] ) }}"
+      pod_security_policy_kube_system_file_template: "{{ cluster_defaults_override['pod_security_policy_kube_system_file_template'] | default( cluster_defaults['pod_security_policy_kube_system_file_template'] ) }}"
+      role_kube_system_file_template:          "{{ cluster_defaults_override['role_kube_system_file_template'] | default( cluster_defaults['role_kube_system_file_template'] ) }}"
+      pod_security_policy_default_file_template: "{{ cluster_defaults_override['pod_security_policy_default_file_template'] | default( cluster_defaults['pod_security_policy_default_file_template'] ) }}"
+      role_default_file_template:             "{{ cluster_defaults_override['role_default_file_template'] | default( cluster_defaults['role_default_file_template'] ) }}"
+      role_binding_default_file_template:     "{{ cluster_defaults_override['role_binding_default_file_template'] | default( cluster_defaults['role_binding_default_file_template'] ) }}"
+      role_binding_kube_system_file_template: "{{ cluster_defaults_override['role_binding_kube_system_file_template'] | default( cluster_defaults['role_binding_kube_system_file_template'] ) }}"
+      kubectl_user:                           "{{ cluster_defaults_override['kubectl_user'] | default( cluster_defaults['kubectl_user'] ) }}"
+      master_pki_directory:                   "{{ cluster_defaults_override['master_pki_directory'] | default( cluster_defaults['master_pki_directory'] ) }}"
+
+- include_tasks: setup.yml
+
+# The API server specification file only exists on master nodes.
+# If the file exists, we know we are on a master node.
+- name: Checking if {{ cluster['api_server_specification_file'] }} exists
+  stat:
+    path: "{{ cluster['api_server_specification_file'] }}"
+  register: api_server_file
+
+# Check if the kubelet process is running on the machine.
+- name: Check if kubelet is running
+  shell: "ps -ef | grep 'bin/kubelet' | grep -v 'grep'"
+  register: check_kubelet_process
+  changed_when: false
+  failed_when: check_kubelet_process.rc != 0 and check_kubelet_process.rc != 1
+
+- include_tasks: harden-masters.yml
+  when: api_server_file.stat.exists
+
+- include_tasks: harden-workers.yml
+  when: ami_creation or check_kubelet_process.rc == 0
+
+- name: "Add firewall rules for Kubernetes"
+  include_role:
+    name: ansible-firewall
+  vars:
+    add_external_firewall_rules: "{{ add_only_k8s_firewall_rules }}"
+    iptables_rules: "{{ master_iptables_rules if api_server_file.stat.exists else worker_iptables_rules }}"
+  when:
+    - setup_k8s_firewall_rules == True
+
+##################################################################################
+##                                BOM Management                                ##
+##                                                                              ##
+##    This section utilizes the ansible-bom_management role to provide          ##
+##    auditing support, so you will need to ensure you've installed that role   ##
+##    within your roles' path - check the README for instructions on            ##
+##    downloading role dependencies. The code here is self-contained, so there  ##
+##    is no need for you to edit or configure this section.                     ##
+##                                                                              ##
+##################################################################################
+
+- name: Get information from current role for ansible-bom_management's usage
+  set_fact:
+    current_role_name: "{{ role_path|basename }}"
+    current_role_version: "{{ lookup('file', 'Release_Notes.md') | regex_replace('^[\\S\\s]*Current-Version:(.*)[\\S\\s]*', '\\1') }}"
+  tags: always
+
+- name: Run the ansible-bom_management role
+  include_role:
+    name: ansible-bom_management
+  tags: bom

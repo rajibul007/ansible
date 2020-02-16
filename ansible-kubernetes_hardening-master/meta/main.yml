@@ -1,0 +1,9 @@
+galaxy_info:
+  author: Cloud 9 Team
+  description: Hardens a Kubernetes cluster
+  company: Cisco
+  license: Cisco Internal
+  
+  galaxy_tags: []
+
+dependencies: []

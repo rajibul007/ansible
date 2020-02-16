@@ -1,0 +1,45 @@
+---
+- block:
+
+  # The kubelet process needs the following kernel parameters set:
+  #
+  #   vm.overcommit_memory=1
+  #   kernel.panic=10
+  #   kernel.panic_on_oops=1
+  #
+  # This task is used to ensure that they are set appropriately
+  - name: Tune kernel parameters
+    sysctl:
+      name: "{{ item.name }}"
+      state: present
+      sysctl_file: "{{ sysctl_file_path }}"
+      value: "{{ item.value }}"
+      reload: yes
+    when: tune_kernel_parameters == True
+    loop:
+      - name: vm.overcommit_memory
+        value: "1"
+      - name: kernel.panic_on_oops
+        value: "1"
+      - name: kernel.panic
+        value: "10"
+
+  ##################################################################################
+  ##                                Common Setup                                  ##
+  ##                                                                              ##
+  ##    This section utilizes the ansible-setup role to provide                   ##
+  ##    initial setup support, make sure to have installed that role              ##
+  ##    within your roles' path - check the README for instructions on            ##
+  ##    downloading role dependencies. The code here is self-contained,           ##
+  ##    so there is no need for you to edit or configure this section.            ##
+  ##                                                                              ##
+  ##################################################################################
+  - name: Include setup role
+    include_role:
+      name: ansible-setup
+    register: ansible_setup_role_has_run
+    when: ansible_setup_role_has_run is not defined
+
+  become: yes
+  become_user: root
+  become_method: sudo

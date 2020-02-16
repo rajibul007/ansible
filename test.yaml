@@ -1,7 +1,0 @@
-- hosts: all
-  remote_user: isadmin
-  tasks:
-     - name: collect data from system 
-       setup:
-
- 

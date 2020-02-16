@@ -1,0 +1,59 @@
+pipeline {
+    agent { label 'sto-ccc-pool' }
+    parameters {
+        string(name: 'ciContainer', defaultValue: 'containers.cisco.com/sto-ccc-cloud9/cloud9-ci-base:stable', description:'location of ci control container to use')
+        string(name: 'ghprbSourceBranch', defaultValue: 'master', description: 'What version of ansible-kubernetes_install do we want to test?')
+        string(name: 'kubernetesSolution', defaultValue: 'kubespray', description: 'k8s solution type')
+        string(name: 'instanceDistroType', defaultValue: 'centos7', description: 'Possible Values are: ubuntu1404, ubuntu1604, ubuntu1804, amazonlinux, amazonlinux2, centos6, centos7, rhel6, rhel7, debian8, debian9')
+    }
+    stages {
+        stage('Run Tests') {
+            parallel {
+                stage ('k8s Hardening - Kubespray, Centos 7') {
+                    steps {
+                        build(job: 'SecureCommonCloudComponents/pipeline/workerJobs/kubernetes_CI',
+                            parameters: [[$class: 'StringParameterValue', name: 'ciContainer', value: "${params.ciContainer}"],
+                                        [$class: 'StringParameterValue', name: 'hardeningTestsRepoVersion', value: "${params.ghprbSourceBranch}"],
+                                        [$class: 'StringParameterValue', name: 'kubernetesSolution', value: "kubespray"],
+                                        [$class: 'StringParameterValue', name: 'instanceDistroType', value: "centos7"],
+                                        [$class: 'StringParameterValue', name: 'userForTargetMachine', value: "centos"],
+                                        ])
+                    }
+                }
+                stage ('k8s Hardening - Kubespray, Ubuntu 16.04') {
+                    steps {
+                        build(job: 'SecureCommonCloudComponents/pipeline/workerJobs/kubernetes_CI',
+                            parameters: [[$class: 'StringParameterValue', name: 'ciContainer', value: "${params.ciContainer}"],
+                                        [$class: 'StringParameterValue', name: 'hardeningTestsRepoVersion', value: "${params.ghprbSourceBranch}"],
+                                        [$class: 'StringParameterValue', name: 'kubernetesSolution', value: "kubespray"],
+                                        [$class: 'StringParameterValue', name: 'instanceDistroType', value: "ubuntu1604"],
+                                        [$class: 'StringParameterValue', name: 'userForTargetMachine', value: "ubuntu"],
+                                        ])
+                    }
+                }
+                stage ('k8s Hardening - Kubeadm, Centos 7') {
+                    steps {
+                        build(job: 'SecureCommonCloudComponents/pipeline/workerJobs/kubernetes_CI',
+                            parameters: [[$class: 'StringParameterValue', name: 'ciContainer', value: "${params.ciContainer}"],
+                                        [$class: 'StringParameterValue', name: 'hardeningTestsRepoVersion', value: "${params.ghprbSourceBranch}"],
+                                        [$class: 'StringParameterValue', name: 'kubernetesSolution', value: "kubeadm"],
+                                        [$class: 'StringParameterValue', name: 'instanceDistroType', value: "centos7"],
+                                        [$class: 'StringParameterValue', name: 'userForTargetMachine', value: "centos"],
+                                        ])
+                    }
+                }
+                stage ('k8s Hardening - Kubeadm, Ubuntu 16.04') {
+                    steps {
+                        build(job: 'SecureCommonCloudComponents/pipeline/workerJobs/kubernetes_CI',
+                            parameters: [[$class: 'StringParameterValue', name: 'ciContainer', value: "${params.ciContainer}"],
+                                        [$class: 'StringParameterValue', name: 'hardeningTestsRepoVersion', value: "${params.ghprbSourceBranch}"],
+                                        [$class: 'StringParameterValue', name: 'kubernetesSolution', value: "kubeadm"],
+                                        [$class: 'StringParameterValue', name: 'instanceDistroType', value: "ubuntu1604"],
+                                        [$class: 'StringParameterValue', name: 'userForTargetMachine', value: "ubuntu"],
+                                        ])
+                    }
+                }
+            }
+        }
+    }
+}

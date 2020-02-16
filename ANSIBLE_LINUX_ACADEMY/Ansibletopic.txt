@@ -1,0 +1,34 @@
+1.Ansible installtion ,setup ,configuration in Linux
+2.Running Ansible Command :
+
+                         1.Run Arbitrary Module Commands 
+                           ansible apacheweb -u test -s -m command -a "ls -al /var"
+                         2.installing package
+                            ansible apacheweb -u test -s -m yum -a "pkg=lynx state=latest"  
+                         3.Managing Services
+                            ansible apacheweb -u test -s -m service -a "name=httpd state=started"
+                         4.Managing Users 
+                            ansible redhat -u test -s -m user -a "name=johnsmith uid=25001 shell=/bin/bash"
+                         5.Managing CRON Jobs 
+                            ansible redhat -u test -s -m cron -a "name='crontest' minute='0' hour='12' job='ls -al /var > /root/var.log'"
+                         6.Run Arbitrary System Commands
+                            ansible all -u test -a "cat /etc/fstab"
+                         
+                         
+3.Playbook structucture with YAML .
+
+                          1. Variable substitution and using ( using vars ,vars_files and vars_prompt in playbook  )
+                          2. using loops in playbook 
+                          3.use of notify and handler 
+                          4.Playbooks - Conditionals
+                          5.using the 'LOCAL ACTION' to bypass user , key ,ssh in local node 
+                          6.using RUN ONCE,prompt(asking input runtime )
+                          7.include yml file in task section of playbook (breaking the playbook)
+                          8.
+                                
+
+4.Gathering facts of worker node . [ansible local -m setup -a 'filter=*ipv4*']
+
+5.Debug statenment [using register and debug ]
+
+6.

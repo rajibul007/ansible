@@ -1,0 +1,396 @@
+---
+
+- block: # block encompasses the entire file to apply sudo to all tasks
+
+  # Make sure ~/.kube exists for the kubectl user. We'll place the cluster
+  # credentials in this folder so that the kubectl command can be used without
+  # needing to pass --server, --client-certificate, and --client-key arguments to it
+  - name: Ensuring ~/.kube folder exists for the {{ cluster['kubectl_user'] }} user
+    file:
+      path: ~/.kube/
+      state: directory
+      mode: 0755
+    become: true
+    become_user: "{{ cluster['kubectl_user'] }}"
+
+  # Set correct permissions on admin conf file
+  - name: "Setting Permissions on {{ cluster['admin_conf_file'] }}"
+    file:
+      path: "{{ cluster['admin_conf_file'] }}"
+      mode: "{{ configuration_file_mode }}"
+
+  # Copy the cluster credentials to the location where 'kubectl' can use them
+  - name: Applying cluster credentials to the kubectl command
+    shell: "cp {{ cluster['admin_conf_file'] }} ~/.kube/config"
+    become: true
+    become_user: "{{ cluster['kubectl_user'] }}"
+    changed_when: false
+
+  # # # # # # # # # # # # # # # # # # # # # # # # #
+  #  Section 1.1 of the CIS Kubernetes Benchmark  #
+  # # # # # # # # # # # # # # # # # # # # # # # # #
+
+  # Get EncryptionConfig file status
+  - stat:
+      path: "{{ encryption_config_file_location }}"
+    register: encryption_config_stat
+
+  # If the EncryptionConfig file exists, check to see if it already has an aescbc key in it
+  - name: Check whether {{ encryption_config_file_location }} contains "- aescbc:"
+    command: grep "\- aescbc:" {{ encryption_config_file_location }}
+    register: check_aescbc
+    ignore_errors: yes
+    changed_when: false
+    when: encryption_config_stat.stat.exists
+
+  # Create secret for EncryptionConfig file
+  # Only do this if:
+  #   1) The user did not already provide a value for encryption_config_keys
+  #   AND
+  #   2) The file does not already exist OR It does exist, but does not contain and aescbc key
+  - name: Creating EncryptionConfig secret
+    shell: "head -c 32 /dev/urandom | base64"
+    register: encryption_config_secret
+    when: encryption_config_keys is not defined and (encryption_config_stat.stat.exists == False or check_aescbc.rc != 0)
+
+  # Create the variable used in encryption_config_file_template
+  # Only do this if:
+  #   1) The user did not already provide a value for encryption_config_keys
+  #      AND
+  #   2) We created a new secret
+  - set_fact:
+      encryption_config_keys:
+        - name: "key1"
+          secret: "{{ encryption_config_secret.stdout }}"
+    when: encryption_config_keys is not defined and encryption_config_secret.changed
+
+  # 1.1.34 - encryption config file with aescbc encryption provider
+  - name: Creating encryption config file
+    template:
+      src: "{{ cluster['encryption_config_file_template'] }}"
+      dest: "{{ encryption_config_file_location }}"
+    when: create_encryption_config_file and encryption_config_keys is defined
+
+  # 1.1.35 - admission control config file
+  - name: Creating admission control config file
+    template:
+      src: "{{ cluster['admission_control_config_file_template'] }}"
+      dest: "{{ admission_control_config_file_location }}"
+    when: create_admission_control_config_file == True
+
+  # 1.1.35 - event config file that is referenced in the admission control config file
+  - name: Creating event config file
+    template:
+      src: "{{ cluster['event_config_file_template'] }}"
+      dest: "{{ event_config_file_location }}"
+    when: create_event_config_file == True
+
+  # 1.1.36 - audit policy file that defines the desired audit policy
+  - name: Creating audit policy file
+    template:
+      src: "{{ cluster['audit_policy_file_template'] }}"
+      dest: "{{ audit_policy_file_location }}"
+    when: create_audit_policy_file == True
+
+  # The PodSecurityPolicy admission control is enabled as part of hardening the
+  # cluster.  In order for that to work, we must first create a pod security
+  # policy, as well as both a role that utilizes the policy and role bindings so
+  # that we can apply the role to certain users and service accounts.
+  - name: Creating a pod security policy file for the kube-system namespace
+    template:
+      src: "{{ cluster['pod_security_policy_kube_system_file_template'] }}"
+      dest: "{{ pod_security_policy_kube_system_file_location }}"
+      mode: 0644
+    when: create_pod_security_policy_kube_system_file == True
+
+  - name: Creating a pod security policy file for the default namespace
+    template:
+      src: "{{ cluster['pod_security_policy_default_file_template'] }}"
+      dest: "{{ pod_security_policy_default_file_location }}"
+      mode: 0644
+    when: create_pod_security_policy_default_file == True
+
+  - name: Creating a role file for the kube-system namespace
+    template:
+      src: "{{ cluster['role_kube_system_file_template'] }}"
+      dest: "{{ role_kube_system_file_location }}"
+      mode: 0644
+    when: create_role_kube_system_file == True
+
+  - name: Creating a role file for the default namespace
+    template:
+      src: "{{ cluster['role_default_file_template'] }}"
+      dest: "{{ role_default_file_location }}"
+      mode: 0644
+    when: create_role_default_file == True
+
+  - name: Creating role binding file for kube-system namespace
+    template:
+      src: "{{ cluster['role_binding_kube_system_file_template'] }}"
+      dest: "{{ role_binding_kube_system_file_location }}"
+      mode: 0644
+    when: create_role_binding_kube_system_file == True
+
+  - name: Creating role binding file for default namespace
+    template:
+      src: "{{ cluster['role_binding_default_file_template'] }}"
+      dest: "{{ role_binding_default_file_location }}"
+      mode: 0644
+    when: create_role_binding_default_file == True
+
+  - name: Applying pod security policy to cluster
+    shell: "kubectl apply -f {{ item }}"
+    run_once: true
+    become: yes
+    become_user: "{{ cluster['kubectl_user'] }}"
+    changed_when: false
+    with_items:
+      - '{{ pod_security_policy_kube_system_file_location }}'
+      - '{{ role_kube_system_file_location }}'
+      - '{{ pod_security_policy_default_file_location }}'
+      - '{{ role_default_file_location }}'
+      - '{{ role_binding_default_file_location }}'
+      - '{{ role_binding_kube_system_file_location }}'
+    notify:
+      - restart kubelet
+
+  # The API server file does not have the enable-admission-plugins flag by default on a kubespray cluster.
+  # Here we are checking if that flag exists by doing a grep and capturing the return code
+  - name: Check if {{ cluster['api_server_specification_file'] }} contains the 'enable-admission-plugins' flag"
+    command: grep "enable-admission-plugins=" {{ cluster['api_server_specification_file'] }}
+    register: check_enable_admission_plugins
+    changed_when: false
+    failed_when: check_enable_admission_plugins.rc != 0 and check_enable_admission_plugins.rc != 1
+    when: (kubernetes_solution | lower) == "kubespray"
+
+  # If the return code of the grep in the previous task is 1, we know that enable-admission-plugins
+  # was not found.  If that is the case, we will add an empty enable-admission-plugins flag to the file.
+  # This is so that we can later add to enable-admission-plugins as per the CIS benchmark.
+  - name: Add enable-admissions-plugins flag to {{ cluster['api_server_specification_file'] }}
+    lineinfile:
+      path: "{{ cluster['api_server_specification_file'] }}"
+      state: 'present'
+      regexp: '^\s*-\s*--enable-admission-plugins='
+      line: '    - --enable-admission-plugins='
+      insertafter: '^\s*- apiserver.*$'
+    when: ((kubernetes_solution | lower) == "kubespray") and check_enable_admission_plugins.rc == 1
+
+  # Harden API Server File
+  # See {{ api_server_configuration }} in the appropriate solution-specific
+  # vars file in order to understand what is happening here
+  - name: Configuring {{ cluster['api_server_specification_file'] }}
+    lineinfile:
+      path: "{{ cluster['api_server_specification_file'] }}"
+      state: '{{ item.state }}'
+      regexp: '{{ item.regexp }}'
+      backrefs: "{{ item.backrefs|default('no') }}"
+      line: '{{ item.line }}'
+      insertafter: "{{ item.insertafter|default('^\\s*- apiserver.*$') }}"
+    with_items: "{{ api_server_configuration }}"
+    notify:
+      - restart kubelet
+
+  # # # # # # # # # # # # # # # # # # # # # # # # # #
+  # #  Section 1.2 of the CIS Kubernetes Benchmark  #
+  # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+  # Harden Scheduler file
+  - name: Configuring {{ cluster['scheduler_specification_file'] }}
+    lineinfile:
+      path: "{{ cluster['scheduler_specification_file'] }}"
+      state: '{{ item.state }}'
+      regexp: '{{ item.regexp }}'
+      backrefs: "{{ item.backrefs|default('no') }}"
+      line: '{{ item.line }}'
+      insertafter: "{{ item.insertafter|default('^\\s*- scheduler.*$') }}"
+    with_items: "{{ scheduler_configuration }}"
+    notify:
+      - restart kubelet
+
+  # # # # # # # # # # # # # # # # # # # # # # # # # #
+  # #  Section 1.3 of the CIS Kubernetes Benchmark  #
+  # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+  # The controller manager specification file does not have the feature-gates flag by default.
+  # Here we are checking if that flag exists by doing a grep and capturing the return code
+  - name: Check if {{ cluster['controller_manager_specification_file'] }} contains the 'feature-gates' flag"
+    command: grep "feature-gates=" {{ cluster['controller_manager_specification_file'] }}
+    register: check_feature_gates
+    changed_when: false
+    failed_when: check_feature_gates.rc != 0 and check_feature_gates.rc != 1
+
+  # If the return code of the grep in the previous task is not zero, we know that feature-gates
+  # was not found.  If that is the case, we will add an empty feature gates flag to the file.
+  # This is so that we can later add feature-gates as per the CIS benchmark.
+  - name: Add feature-gates flag to {{ cluster['controller_manager_specification_file'] }}
+    lineinfile:
+      path: "{{ cluster['controller_manager_specification_file'] }}"
+      state: 'present'
+      regexp: '^\s*-\s*--feature-gates='
+      line: '    - --feature-gates='
+      insertafter: '^\s*- kube-controller-manager.*$'
+    when: check_feature_gates.rc == 1
+
+  # Harden Controller Manager File
+  # See {{ controller_manager_configuration }} in the appropriate solution-specific
+  # vars file in order to understand what is happening here
+  - name: Configuring {{ cluster['controller_manager_specification_file'] }}
+    lineinfile:
+      path: "{{ cluster['controller_manager_specification_file'] }}"
+      state: '{{ item.state }}'
+      regexp: '{{ item.regexp }}'
+      backrefs: "{{ item.backrefs|default('no') }}"
+      line: '{{ item.line }}'
+      insertafter: "{{ item.insertafter|default('^\\s*- controller-manager.*$') }}"
+    with_items: "{{ controller_manager_configuration }}"
+    notify:
+      - restart kubelet
+
+  # # # # # # # # # # # # # # # # # # # # # # # # # #
+  # #  Section 1.4 of the CIS Kubernetes Benchmark  #
+  # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+  # All of 1.4.1 - 1.4.18, except for 1.4.11 and 1.4.12, is being covered here
+  - name: Setting Master Configuration Files' Ownership and Permissions
+    file:
+      path: "{{ item }}"
+      owner: "{{ configuration_file_owner }}"
+      group: "{{ configuration_file_group }}"
+      mode: "{{ configuration_file_mode }}"
+    with_items: "{{ master_configuration_files }}"
+    notify:
+      - restart kubelet
+
+  # 1.4.11 and 1.4.12 specify a different owner/group/mode for the etcd data directory
+  - name: Setting etcd Directory Ownership and Permissions
+    file:
+      path: "{{ cluster['etcd_data_directory'] }}"
+      owner: "{{ etcd_data_directory_owner }}"
+      group: "{{ etcd_data_directory_group }}"
+      mode: "{{ etcd_data_directory_mode }}"
+    notify:
+      - restart kubelet
+
+  # 1.4.19 Ensure that the Kubernetes PKI directory and file ownership is set to root:root
+  - name: Setting PKI directory Ownership Recursively
+    file:
+      path: "{{ cluster['master_pki_directory'] }}"
+      state: directory
+      recurse: yes
+      owner: "{{ master_pki_directory_owner }}"
+      group: "{{ master_pki_directory_group }}"
+    notify:
+      - restart kubelet
+
+  - name: Finding all *.crt files in the pki directory
+    find:
+      paths: "{{ cluster['master_pki_directory'] }}"
+      patterns: '*.crt'
+    register: crt_find_result
+
+  # 1.4.20 Ensure that the Kubernetes PKI certificate file permissions are set to 644 or more restrictive
+  - name: Setting PKI certificate file Permissions
+    file:
+      path: "{{ item.path }}"
+      mode: 0644
+    loop: "{{ crt_find_result.files }}"
+    notify:
+      - restart kubelet
+
+  - name: Finding all *.key files in the pki directory
+    find:
+      paths: "{{ cluster['master_pki_directory'] }}"
+      patterns: '*.key'
+    register: key_find_result
+
+  # 1.4.21 Ensure that the Kubernetes PKI key file permissions are set to 600
+  - name: Setting PKI key file Permissions
+    file:
+      path: "{{ item.path }}"
+      mode: 0600
+    loop: "{{ key_find_result.files }}"
+    notify:
+      - restart kubelet
+
+  # # # # # # # # # # # # # # # # # # # # # # # # #
+  #  Section 1.5 of the CIS Kubernetes Benchmark  #
+  # # # # # # # # # # # # # # # # # # # # # # # # #
+
+  # Harden etcd env file
+  # See {{ etcd_env_configuration }} in the appropriate solution-specific
+  # vars file in order to understand what is happening here
+  - name: Configuring {{ cluster['etcd_env_file'] }}
+    lineinfile:
+      path: "{{ cluster['etcd_env_file'] }}"
+      state: '{{ item.state }}'
+      regexp: '{{ item.regexp }}'
+      backrefs: "{{ item.backrefs|default('no') }}"
+      line: '{{ item.line }}'
+      insertafter: "{{ item.insertafter|default('EOF') }}"
+    when: (item.run | default(true)) and kubernetes_solution != "maglev"
+    with_items: "{{ etcd_env_configuration }}"
+    notify:
+      - restart kubelet
+
+
+  # # # # # # # # # # # # # # # # # # # # # # # # #
+  #  Section 1.6 of the CIS Kubernetes Benchmark  #
+  # # # # # # # # # # # # # # # # # # # # # # # # #
+
+  # The entirety of Section 1.6 is Not Scored, so we are not implementing for now
+
+  # # # # # # # # # # # # # # # # # # # # # # # # #
+  #  Section 1.7 of the CIS Kubernetes Benchmark  #
+  # # # # # # # # # # # # # # # # # # # # # # # # #
+
+  # Section 1.7 relates to PodSecurityPolicies.
+  # It is covered by the pod-security-policy.j2 template in this role.
+
+  # # # # # # # # # # # # # # # # # # # # # # # # #
+  #           Address impact of hardening         #
+  # # # # # # # # # # # # # # # # # # # # # # # # #
+
+  # Remove default livenessProbe as it does not work post-hardening.
+  # Testing shows that changing the livenessProbe to a 'tcpSocket'
+  # type, as opposed to the 'httpGet' type, may work instead.
+  - name: Removing livenessProbe
+    replace:
+      path: "{{ cluster['api_server_specification_file'] }}"
+      regexp: '(\s*livenessProbe:)([\s*\S*]*)(timeoutSeconds: 15)'
+    notify:
+      - restart kubelet
+
+  # Ensure that the API server has the correct volume and volumeMount
+  # for /etc/kubernetes/ in order to be able to read the configuration files
+  # that this role creates
+  - name: Ensure correct volumeMount exists
+    blockinfile:
+      path: "{{ cluster['api_server_specification_file'] }}"
+      marker: "# {mark} ANSIBLE MANAGED BLOCK - volumeMounts"
+      block: |-2
+            - mountPath: {{ api_server_mount_path }}
+              name: k8s-conf
+              readOnly: true
+      insertafter: 'volumeMounts:'
+    when: kubernetes_solution != 'maglev'
+    notify:
+      - restart kubelet
+
+  - name: Ensure correct volume exists
+    blockinfile:
+      path: "{{ cluster['api_server_specification_file'] }}"
+      marker: "# {mark} ANSIBLE MANAGED BLOCK - volumes"
+      block: |-2
+          - hostPath:
+              path: {{ api_server_host_path }}
+              type: DirectoryOrCreate
+            name: k8s-conf
+      insertafter: 'volumes:'
+    when: kubernetes_solution != 'maglev'
+    notify:
+      - restart kubelet
+
+  # end of block - apply sudo to all tasks in file
+  become: yes
+  become_user: root
+  become_method: sudo

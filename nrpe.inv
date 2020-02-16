@@ -1,5 +1,0 @@
-[nrpe]
-9.45.92.67      ansible_user=isadmin ansible_ssh_pass=fine4now  ansible_sudo_pass=fine4now
-bfp7solr118.innovate.ibm.com    ansible_user=isadmin ansible_ssh_pass=fine4now  ansible_sudo_pass=fine4now
-bfp7solr119.innovate.ibm.com    ansible_user=isadmin ansible_ssh_pass=fine4now  ansible_sudo_pass=fine4now
-bfp7solr120.innovate.ibm.com    ansible_user=isadmin ansible_ssh_pass=fine4now  ansible_sudo_pass=fine4now

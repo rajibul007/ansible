@@ -1,0 +1,25 @@
+---
+
+#################################################################################
+##             Installs the following roles in /etc/ansible/roles:             ##
+##                                                                             ##
+##                 ansible-galaxy install -r requirements.yml                  ##
+##                                                                             ##
+##           Alternatively, you can utilize the "-p" flag to specify a         ##
+##                 specific path to download the roles to:                     ##
+##                                                                             ##
+##           ansible-galaxy install -r requirements.yml -p /some/directory     ##
+##                                                                             ##
+#################################################################################
+
+# Our ansible-setup role to perform inital setup tasks.
+- src: git+https://wwwin-github.cisco.com/sto-ccc/ansible-setup.git
+  version: master
+
+# Our ansible-firewall to handle firewall related tasks
+- src: git+https://wwwin-github.cisco.com/sto-ccc/ansible-firewall.git
+  version: master
+
+# Our ansible-bom_management to handle BOM-related tasks
+- src: git+https://wwwin-github.cisco.com/sto-ccc/ansible-bom_management.git
+  version: master

@@ -1,0 +1,13 @@
+kind: EncryptionConfig
+apiVersion: v1
+resources:
+  - resources:
+    - secrets
+    providers:
+    - aescbc:
+        keys:
+{% for item in encryption_config_keys %}
+        - name: {{ item.name }}
+          secret: {{ item.secret }}
+{% endfor %}
+    - identity: {}
