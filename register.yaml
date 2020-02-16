@@ -1,0 +1,32 @@
+---
+- hosts: localhost
+  gather_facts: no
+  connection: local 
+  tasks:
+      - shell: systemctl start nginx 
+        register: result
+        ignore_errors: yes
+
+      - debug: var=result
+
+      - service: name=docker state=started 
+        register: dockerresult
+        ignore_errors: yes 
+
+      - debug: var=dockerresult 
+
+      - shell: echo "nginx service is    started" > log
+        when: result is succeeded
+
+      - shell: echo "nginx service is not   started" > log
+        when: result is failed
+
+
+      - shell:  echo "docker service is  started" >> log
+        when: dockerresult is succeeded
+      
+      - shell: helm ls 
+        register: helmstatus
+
+      - debug: var=helmstatus
+
